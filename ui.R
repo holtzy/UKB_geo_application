@@ -28,12 +28,12 @@ shinyUI(fluidPage(
 	),
 	fluidRow( align="center",
 		br(),
-		column(2, offset=5, align="center", radioGroupButtons( "section",label = NULL, choices=c("Methods"=2, "Explore"=1, "Compare"=3), selected=1 )),
+		column(3, offset=4, align="center", radioGroupButtons( "section",label = NULL, choices=c("Methods"=2, "Explore"=1, "Compare"=3), selected=1 )),
 	
 		# Customization button
 		column(2, offset=0, align="left", 
-			#dropdownButton(
-				#circle = TRUE, icon = icon("plus"), width = "600px", tooltip = tooltipOptions(title = "See more"),
+			dropdownButton(
+				circle = TRUE, icon = icon("plus"), width = "600px", tooltip = tooltipOptions(title = "See more"),
 			
 				h2("Geographical Unit"),
 				hr(),
@@ -53,15 +53,13 @@ shinyUI(fluidPage(
 				strong("type of color scale:"),
 				selectInput(inputId = "type_scale", label = "", choices = c("Bin", "Quantile", "Numerical"), selected="Bin"),
 
-
-				conditionalPanel("input.type_scale == Bin",
-					strong("Number of slice:"),
-					sliderInput("slider_quantile", "", min=3, max=20, value=6, ticks=F)
-				),
-
 				strong("Color Palette:"),
-				selectInput(inputId = "choice_palette", label = "", choices = c("Blues", "Reds", "viridis", "magma", "BuPu"), selected="Blues")
-		 	#)
+				selectInput(inputId = "choice_palette", label = "", choices = c("Blues", "Reds", "viridis", "magma", "BuPu"), selected="BuPu"),
+
+				strong("Number of slice:"),
+				sliderInput("slider_quantile", "", min=3, max=20, value=6, ticks=F)
+		
+		 	)
 		)
 	),
 
@@ -148,7 +146,7 @@ shinyUI(fluidPage(
 		# If 2 maps
 		conditionalPanel( "input.multimap_variable.length==2" ,
 			fluidRow(
-				column(4, offset=2, leafletOutput("compar_map1a", height="900px") %>% withSpinner( color= "#2ecc71")),
+				column(4, offset=2, textOutput("title1"), leafletOutput("compar_map1a", height="900px") %>% withSpinner( color= "#2ecc71")),
 				column(4, leafletOutput("compar_map2a", height="900px") %>% withSpinner( color= "#2ecc71"))
 			)
 		),
@@ -196,6 +194,8 @@ shinyUI(fluidPage(
 		# Legend
 		fluidRow(align="center", h3(tags$u(tags$b("Figure 2")),": Geographical distribution of xx, xx and xx in the UK.")),
 
+
+
 		# Scatterplot of pairwise comparison
 		br(),
 		fluidRow( align="center", 
@@ -205,10 +205,30 @@ shinyUI(fluidPage(
 			)
 		),
 		br(),
-		fluidRow(align="center", plotlyOutput("scatter", height="700px", width="80%") %>% withSpinner( color= "#2ecc71"), 
+		fluidRow(align="center", plotlyOutput("scatter", height="700px", width="700px") %>% withSpinner( color= "#2ecc71"), 
 		fluidRow(align="center", h3(tags$u(tags$b("Figure 3")),": Pairwise relationship of your selected variables"))
 
+		),
+
+
+
+		# Heatmap
+		br(),
+		fluidRow( align="center", 
+			column(4, offset=4, 
+				hr(), 
+				h5("In case you would be looking for the highest or lowest relationships, here is an heatmap displaying all of them")
+			)
+		),
+		br(),
+		fluidRow(align="center", d3heatmapOutput("heatmap", width="700px", height="700px") %>% withSpinner( color= "#2ecc71"), 
+		fluidRow(align="center", h3(tags$u(tags$b("Figure 4")),": Heatmap")),
+		radioGroupButtons(inputId = "var_heatmap", label = "", choices = c("PRS (no correction)" = 1, "UKB PCs" = 2, "PRS corrected by UKB"=3, "1000 genome PCs" = 4, "PRS corrected by 1000g"=5  ), selected=2)
+
+
 		)
+
+
 
 
 
@@ -309,7 +329,7 @@ shinyUI(fluidPage(
 			br(),
 			"Source code available on", strong(a("Github", style="color:lightblue", href="https://github.com/holtzy/the-NB-COMO-Project")), ".",
 			br(),
-			"Copyright © 2017 The COMO Project",
+			"Copyright © 2017 Genes, Geography in the UKB",
 			br(), br(),br()
 			
 		),

@@ -30,6 +30,7 @@ library(leaflet)
 
 library(GGally)				# For the scatterplot matrix
 
+library(d3heatmap)
 
 
 # -----------------------------------

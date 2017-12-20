@@ -11,9 +11,19 @@ shinyServer(function(input, output) {
 
 
 
+  # ------------------------------------------------------------------------------
+  # REACTIVE FOR DATA SELECTION
+  # ------------------------------------------------------------------------------
 
 
+  mydata=reactive({
 
+ 		if(input$map_geo_unit==1 & input$map_geo_transfo==1){ return(GBR_region) }
+		if(input$map_geo_unit==1 & input$map_geo_transfo==2){ return(GBR_region_cartogram) }
+		if(input$map_geo_unit==3 & input$map_geo_transfo==1){ return(GBR_hexa) }
+		if(input$map_geo_unit==3 & input$map_geo_transfo==2){ return(GBR_hexa_cartogram) }
+
+  	})
 
 
 
@@ -24,11 +34,7 @@ shinyServer(function(input, output) {
 		
 	output$main_map <- renderLeaflet({
 
-		# Select the data: region large / region medium / hexagone?
-		if(input$map_geo_unit==1 & input$map_geo_transfo==1){ mydata=GBR_region }
-		if(input$map_geo_unit==1 & input$map_geo_transfo==2){ mydata=GBR_region_cartogram }
-		if(input$map_geo_unit==3 & input$map_geo_transfo==1){ mydata=GBR_hexa }
-		if(input$map_geo_unit==3 & input$map_geo_transfo==2){ mydata=GBR_hexa_cartogram }
+		mydata=mydata()
 
 		# Set zoom and troke width
 		if( input$map_geo_unit!=3 ){
@@ -39,27 +45,37 @@ shinyServer(function(input, output) {
 			mystroke=3
 		}
 
-		# Get the variable choose by user:
+		# Get the variable chosen by user:
 		variable=input$map_variable
 		vector=as.numeric(as.character(mydata@data[ , variable]))
 
 		# Create a color palette with handmade bins.
-		mybins=seq( min(vector, na.rm=TRUE), max(vector, na.rm=TRUE), (max(vector, na.rm=TRUE)-min(vector, na.rm=TRUE))/input$slider_quantile) %>% round(2)
-		mypalette = colorBin( palette=input$choice_palette, domain=vector, na.color="transparent", bins=mybins)
+		if(input$type_scale=="Bin"){
+			mybins=seq( min(vector, na.rm=TRUE), max(vector, na.rm=TRUE), (max(vector, na.rm=TRUE)-min(vector, na.rm=TRUE))/input$slider_quantile) %>% round(2)
+			mypalette = colorBin( palette=input$choice_palette, domain=vector, na.color="transparent", bins=mybins)
+		}
+		if(input$type_scale=="Quantile"){
+			mypalette = colorQuantile( palette=input$choice_palette, domain=vector, na.color="transparent", n=7)
+		}
+		if(input$type_scale=="Numerical"){
+			mypalette = colorNumeric( palette=input$choice_palette, domain=vector, na.color="transparent")
+		}
 
+		print("yoo")
+		print(mypalette(0.1))
 		# text
 		mytext=paste("Region: ", mydata@data$geo_label,"<br/>", "Number of people: ", mydata@data$nb_people, "<br/>", "Value: ", round(vector,2), sep="") %>%
 		  lapply(htmltools::HTML)
 		  
 		# Final Map
-		leaflet(mydata, options = leafletOptions(zoomControl = FALSE, minZoom = myzoom, maxZoom = 8)) %>% 
+		leaflet(mydata, options = leafletOptions(zoomControl = TRUE, minZoom = myzoom, maxZoom = 8)) %>% 
 		  	addPolygons( 
 		    	fillColor = ~mypalette(vector), stroke=TRUE, fillOpacity = 1, color=~mypalette(vector), weight=mystroke,
    				highlight = highlightOptions( weight = 5, color = ~mypalette(vector), dashArray = "", fillOpacity = 0.3, bringToFront = TRUE),
     			label = mytext,
     			labelOptions = labelOptions( style = list("font-weight" = "normal", padding = "3px 8px"), textsize = "13px", direction = "auto")
   			) %>%
-  		addLegend( pal=mypalette, values=~variable, opacity=0.9, title = variable, position = "bottomright" )
+  		addLegend( pal=mypalette, values=vector, opacity=0.9, title = variable, position = "bottomright" )
 
 	})
 
@@ -78,24 +94,22 @@ shinyServer(function(input, output) {
   # ------------------------------------------------------------------------------
 		
 
+  	# ----- REACTIVE ZOOM AND STROKE VALUE
+  	myzoom=reactive({
+  		if( input$map_geo_unit!=3 ){ return(6) }else{return(6)}
+  	})
+    mystroke=reactive({
+  		if( input$map_geo_unit!=3 ){ return(1) }else{return(3)}
+  	})	
+
+
+
 	# ------ PLOT1
 	output$compar_map1a <- output$compar_map1b <- output$compar_map1c <- output$compar_map1d <- renderLeaflet({
 
-		# Select the data: region large / region medium / hexagone?
-		if(input$map_geo_unit==1 & input$map_geo_transfo==1){ mydata=GBR_region }
-		if(input$map_geo_unit==1 & input$map_geo_transfo==2){ mydata=GBR_region_cartogram }
-		if(input$map_geo_unit==3 & input$map_geo_transfo==1){ mydata=GBR_hexa }
-		if(input$map_geo_unit==3 & input$map_geo_transfo==2){ mydata=GBR_hexa_cartogram }
-
-		# Set zoom and troke width
-		if( input$map_geo_unit!=3 ){
-			myzoom=6.3
-			mystroke=1
-		}else{
-			myzoom=7
-			mystroke=3
-		}
-
+		mydata=mydata()
+		myzoom=myzoom()
+		mystroke=mystroke()
 
 		# Get the variable choose by user:
 		variable=input$multimap_variable[1]
@@ -103,7 +117,7 @@ shinyServer(function(input, output) {
 
 		# Create a color palette with handmade bins.
 		mybins=seq( min(vector, na.rm=TRUE), max(vector, na.rm=TRUE), (max(vector, na.rm=TRUE)-min(vector, na.rm=TRUE))/input$slider_quantile) %>% round(2)
-		mypalette = colorBin( palette="viridis", domain=vector, na.color="transparent", bins=mybins)
+		mypalette = colorBin( palette=input$choice_palette, domain=vector, na.color="transparent", bins=mybins)
 
 		# text
 		mytext=paste("Region: ", mydata@data$geo_label,"<br/>", "Number of people: ", mydata@data$nb_people, "<br/>", "Value: ", round(vector,2), sep="") %>%
@@ -125,21 +139,9 @@ shinyServer(function(input, output) {
 	# ------ PLOT2
 	output$compar_map2a <- output$compar_map2b <- output$compar_map2c <- output$compar_map2d <- renderLeaflet({
 
-		# Select the data: region large / region medium / hexagone?
-		if(input$map_geo_unit==1 & input$map_geo_transfo==1){ mydata=GBR_region }
-		if(input$map_geo_unit==1 & input$map_geo_transfo==2){ mydata=GBR_region_cartogram }
-		if(input$map_geo_unit==3 & input$map_geo_transfo==1){ mydata=GBR_hexa }
-		if(input$map_geo_unit==3 & input$map_geo_transfo==2){ mydata=GBR_hexa_cartogram }
-
-		# Set zoom and troke width
-		if( input$map_geo_unit!=3 ){
-			myzoom=6.3
-			mystroke=1
-		}else{
-			myzoom=7
-			mystroke=3
-		}
-
+		mydata=mydata()
+		myzoom=myzoom()
+		mystroke=mystroke()
 
 		# Get the variable choose by user:
 		variable=input$multimap_variable[2]
@@ -147,7 +149,7 @@ shinyServer(function(input, output) {
 
 		# Create a color palette with handmade bins.
 		mybins=seq( min(vector, na.rm=TRUE), max(vector, na.rm=TRUE), (max(vector, na.rm=TRUE)-min(vector, na.rm=TRUE))/input$slider_quantile) %>% round(2)
-		mypalette = colorBin( palette="viridis", domain=vector, na.color="transparent", bins=mybins)
+		mypalette = colorBin( palette=input$choice_palette, domain=vector, na.color="transparent", bins=mybins)
 
 		# text
 		mytext=paste("Region: ", mydata@data$geo_label,"<br/>", "Number of people: ", mydata@data$nb_people, "<br/>", "Value: ", round(vector,2), sep="") %>%
@@ -166,16 +168,98 @@ shinyServer(function(input, output) {
 
 
 	# ------ PLOT3
-	#output$compar_map3b <- output$compar_map3c <- output$compar_map3d <- renderLeaflet({
+	output$compar_map3b <- output$compar_map3c <- output$compar_map3d <- renderLeaflet({
+
+		mydata=mydata()
+		myzoom=myzoom()
+		mystroke=mystroke()
+
+		# Get the variable choose by user:
+		variable=input$multimap_variable[3]
+		vector=as.numeric(as.character(mydata@data[ , variable]))
+
+		# Create a color palette with handmade bins.
+		mybins=seq( min(vector, na.rm=TRUE), max(vector, na.rm=TRUE), (max(vector, na.rm=TRUE)-min(vector, na.rm=TRUE))/input$slider_quantile) %>% round(2)
+		mypalette = colorBin( palette=input$choice_palette, domain=vector, na.color="transparent", bins=mybins)
+
+		# text
+		mytext=paste("Region: ", mydata@data$geo_label,"<br/>", "Number of people: ", mydata@data$nb_people, "<br/>", "Value: ", round(vector,2), sep="") %>%
+		  lapply(htmltools::HTML)
+		  
+		# Final Map
+		leaflet(mydata, options = leafletOptions(zoomControl = FALSE, minZoom = myzoom, maxZoom = 8)) %>% 
+		  	addPolygons( 
+		    	fillColor = ~mypalette(vector), stroke=TRUE, fillOpacity = 1, color=~mypalette(vector), weight=mystroke,
+   				highlight = highlightOptions( weight = 5, color = ~mypalette(vector), dashArray = "", fillOpacity = 0.3, bringToFront = TRUE),
+    			label = mytext,
+    			labelOptions = labelOptions( style = list("font-weight" = "normal", padding = "3px 8px"), textsize = "13px", direction = "auto")
+  			) 
+
+	})
 
 
 	# ------ PLOT4
-	#output$compar_map4c <- output$compar_map4d <- renderLeaflet({
+	output$compar_map4c <- output$compar_map4d <- renderLeaflet({
+
+		mydata=mydata()
+		myzoom=myzoom()
+		mystroke=mystroke()
+
+		# Get the variable choose by user:
+		variable=input$multimap_variable[4]
+		vector=as.numeric(as.character(mydata@data[ , variable]))
+
+		# Create a color palette with handmade bins.
+		mybins=seq( min(vector, na.rm=TRUE), max(vector, na.rm=TRUE), (max(vector, na.rm=TRUE)-min(vector, na.rm=TRUE))/input$slider_quantile) %>% round(2)
+		mypalette = colorBin( palette=input$choice_palette, domain=vector, na.color="transparent", bins=mybins)
+
+		# text
+		mytext=paste("Region: ", mydata@data$geo_label,"<br/>", "Number of people: ", mydata@data$nb_people, "<br/>", "Value: ", round(vector,2), sep="") %>%
+		  lapply(htmltools::HTML)
+		  
+		# Final Map
+		leaflet(mydata, options = leafletOptions(zoomControl = FALSE, minZoom = myzoom, maxZoom = 8)) %>% 
+		  	addPolygons( 
+		    	fillColor = ~mypalette(vector), stroke=TRUE, fillOpacity = 1, color=~mypalette(vector), weight=mystroke,
+   				highlight = highlightOptions( weight = 5, color = ~mypalette(vector), dashArray = "", fillOpacity = 0.3, bringToFront = TRUE),
+    			label = mytext,
+    			labelOptions = labelOptions( style = list("font-weight" = "normal", padding = "3px 8px"), textsize = "13px", direction = "auto")
+  			) 
+
+	})
 
 
 
 	# ------ PLOT5
-	#output$compar_map5d <- renderLeaflet({
+	output$compar_map5d <- renderLeaflet({
+
+		mydata=mydata()
+		myzoom=myzoom()
+		mystroke=mystroke()
+
+		# Get the variable choose by user:
+		variable=input$multimap_variable[5]
+		vector=as.numeric(as.character(mydata@data[ , variable]))
+
+		# Create a color palette with handmade bins.
+		mybins=seq( min(vector, na.rm=TRUE), max(vector, na.rm=TRUE), (max(vector, na.rm=TRUE)-min(vector, na.rm=TRUE))/input$slider_quantile) %>% round(2)
+		mypalette = colorBin( palette=input$choice_palette, domain=vector, na.color="transparent", bins=mybins)
+
+		# text
+		mytext=paste("Region: ", mydata@data$geo_label,"<br/>", "Number of people: ", mydata@data$nb_people, "<br/>", "Value: ", round(vector,2), sep="") %>%
+		  lapply(htmltools::HTML)
+		  
+		# Final Map
+		leaflet(mydata, options = leafletOptions(zoomControl = FALSE, minZoom = myzoom, maxZoom = 8)) %>% 
+		  	addPolygons( 
+		    	fillColor = ~mypalette(vector), stroke=TRUE, fillOpacity = 1, color=~mypalette(vector), weight=mystroke,
+   				highlight = highlightOptions( weight = 5, color = ~mypalette(vector), dashArray = "", fillOpacity = 0.3, bringToFront = TRUE),
+    			label = mytext,
+    			labelOptions = labelOptions( style = list("font-weight" = "normal", padding = "3px 8px"), textsize = "13px", direction = "auto")
+  			) 
+
+	})
+
 
 
 
@@ -196,14 +280,12 @@ shinyServer(function(input, output) {
 
   output$scatter=renderPlotly({ 
 
-	# Select the data: region large / region medium / hexagone?
-		if(input$map_geo_unit==1 & input$map_geo_transfo==1){ mydata=GBR_region }
-		if(input$map_geo_unit==1 & input$map_geo_transfo==2){ mydata=GBR_region_cartogram }
-		if(input$map_geo_unit==3 & input$map_geo_transfo==1){ mydata=GBR_hexa }
-		if(input$map_geo_unit==3 & input$map_geo_transfo==2){ mydata=GBR_hexa_cartogram }
-
+		mydata=mydata()
+  
   		# Prepare text
-		mydata@data$text="yoyo"
+		mydata@data$text=paste("PC1: ", round(mydata@data$PC1, 2), sep="")
+
+		# filter column
 
   		# Make the plot
 		p=ggplot(data=mydata@data, aes(x=PC1, y=PC2, color=PC1, text=text)) + 
@@ -221,8 +303,6 @@ shinyServer(function(input, output) {
 	})
 
 
-
-
   #output$scatter_matrix=renderPlotly({ 
 		
 	#p=ggpairs(tmp@data[,c(1:2)]) +
@@ -235,6 +315,42 @@ shinyServer(function(input, output) {
 
 	#})
 
+
+	#output$scatter=renderPlot({ 
+
+	#	mydata=mydata()
+#
+#		mydata@data %>% 
+#	  		select(input$multimap_variable) %>%
+#	  		plot( pch=20 , cex=1.5 , col=rgb(0.5, 0.8, 0.9, 0.7))
+
+
+#	})
+
+
+
+
+
+
+
+  # ------------------------------------------------------------------------------
+  # SCATTERPLOT COMPARISON
+  # ------------------------------------------------------------------------------
+	
+
+	output$heatmap=renderD3heatmap({
+
+		mydata=mydata()
+
+		mylist=list(list_PC_UKB , list_PC_1KG , list_PRS_reg_UKB , list_PRS_reg_1KG ,list_PRS)
+
+		mycor=cor(mydata@data[ , mylist[[as.numeric(input$var_heatmap)]] ] , use="complete.obs")
+		diag(mycor)=NA
+
+		d3heatmap(mycor, color = "Blues")
+
+	
+	})
 
 
 
