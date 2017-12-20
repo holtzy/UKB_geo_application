@@ -30,8 +30,38 @@ shinyUI(fluidPage(
 		br(),
 		radioGroupButtons( "section",label = NULL, choices=c("Methods"=2, "Explore"=1, "Compare"=3), selected=1 )
 	),
-	column(8, offset=2, hr()),
-	br(), br(),	
+	column(8, offset=2, hr()),	
+
+	# Customization button
+	fluidRow(
+		column(2, offset=1, align="left", 
+
+			#dropdownButton(
+				#circle = TRUE, icon = icon("plus"), width = "600px", tooltip = tooltipOptions(title = "See more"),
+			
+				h2("Geographical Unit"),
+				hr(),
+				h5("We propose to work at 3 different geographical scales. This will divide UK in 414, 1k and 10k units respectively. You can also choose your resolution. Better resolution allows to zoom on the map, but a waiting time will be necessary. Click the + button for this option."),
+				pickerInput(inputId = "map_geo_unit", label = "", choices = c("Region (large)"=1, "Region (Small)"=2, "Hexagones"=3) ),
+				br(), br(),
+				
+				h2("Transformation"),
+				hr(),
+				h5("We propose to work at 3 different geographical scales. This will divide UK in 414, 1k and 10k units respectively. You can also choose your resolution. Better resolution allows to zoom on the map, but a waiting time will be necessary. Click the + button for this option."),
+				pickerInput(inputId = "map_geo_transfo", label = "", choices = c("No transformation"=1, "Cartogram"=2) ),
+				br(), br(),
+
+				h2("Color Scale"),
+				hr(),
+				h5("We propose to work at 3 different geographical scales. This will divide UK in 414, 1k and 10k units respectively. You can also choose your resolution. Better resolution allows to zoom on the map, but a waiting time will be necessary. Click the + button for this option."),
+				strong("type of color scale:"),
+				pickerInput(inputId = "type_scale", label = "", choices = c("Bin", "Quantile", "Numerical"), selected="Bin"),
+				strong("Number of slice:"),
+				sliderInput("slider_quantile", "", min=3, max=20, value=6, ticks=F),
+		 	#),
+			h6(" More customization")
+		)
+	),
  	# -------------------------------------------------------------------------------------
 
 
@@ -51,12 +81,11 @@ shinyUI(fluidPage(
 			h5("This application describes the geographical distribution of several variable of the ", strong(a("UK Biobank dataset", style="color:lightblue", href="http://www.ukbiobank.ac.uk")), "(n=502630)."),
 			br(),
 			h5("More than 100 variables are available for visualization. You can observe them using different geographical units. It is possible to custom and export this map following the surrounding buttons. Use the compare tab above if you want to study the relationship between several variables."),
-			br(), br(), br(),br(), br(), br(), br(),
-			h2("Variable"),
-			hr(),
-			h5("We propose to represent the geographical distribution of 126 variables. These veriable are split in several groups: Principal Components (PCs), Polygenic Risk Scores (PRS). To understand how these variable have been computed, visit the method section."),
-			pickerInput(inputId = "map_variable", label = "", choices = list(Polygenic_Risk_Score = list_PRS, PC_from_UKB = list_PC_UKB, PRS_corrected_UKB=list_PRS_reg_UKB, PC_from_1000genome = list_PC_1KG, PRS_corrected_1000genome=list_PRS_reg_1KG  ))
+			br(), br(), br(),br(), br(), br(), br()
 		),
+
+
+
 		
 
 
@@ -64,7 +93,7 @@ shinyUI(fluidPage(
 		column(6, align="center",
 			leafletOutput("main_map", height="1100px", width="100%") %>% withSpinner( color= "#2ecc71"),
 			br(), br(),
-			h3(tags$u(tags$b("Figure 1")),": Geographical distribution of xx in the UK.")
+			h3(tags$u(tags$b("Figure 1")),": Geographical distribution in the UK.")
 		),
 		
 
@@ -73,33 +102,10 @@ shinyUI(fluidPage(
 		# RIGHT SIDE
 		column(2, align="right",
 			br(), br(), br(), br(),br(), br(), br(), br(),
-			
-			
-			h2("Geographical Unit"),
+			h2("Variable"),
 			hr(),
-			h5("We propose to work at 3 different geographical scales. This will divide UK in 414, 1k and 10k units respectively. You can also choose your resolution. Better resolution allows to zoom on the map, but a waiting time will be necessary. Click the + button for this option."),
-			pickerInput(inputId = "map_geo_unit", label = "", choices = c("Large"=1, "Medium"=2, "Thin"=3) ),
-			pickerInput(inputId = "map_geo_transfo", label = "", choices = c("No transformation"=1, "Cartogram"=2) ),
-			br(),
-			br(), br(), br(),br(), br(), br(), br(),
-			
-
-
-			h2("Layout options"),
-			hr(),
-			h5("We propose several options to custom your map. Choose what kind of colorscale and palettes you want."),
-			radioGroupButtons(inputId = "map_type", label = "", choices = c("Chloropleth"=1, "Points"=2, "Hexbin"=3) ),
-			h5("More options:"),
-			dropdownButton(circle = TRUE, icon = icon("plus"), width = "300px", tooltip = tooltipOptions(title = "See more"),
-				conditionalPanel("input.map_type == 1",
-					h3("You have chosen to make a chloropleth map. Several option are available to custom it:"),
-					strong("type of color scale:"),
-					pickerInput(inputId = "type_scale", label = "", choices = c("Bin", "Quantile", "Numerical"), selected="Bin"),
-					strong("Number of slice:"),
-					sliderInput("slider_quantile", "", min=3, max=20, value=6, ticks=F)
-				)
-			)
-
+			h5("We propose to represent the geographical distribution of 126 variables. These veriable are split in several groups: Principal Components (PCs), Polygenic Risk Scores (PRS). To understand how these variable have been computed, visit the method section."),
+			pickerInput(inputId = "map_variable", label = "", choices = list(Polygenic_Risk_Score = list_PRS, PC_from_UKB = list_PC_UKB, PRS_corrected_UKB=list_PRS_reg_UKB, PC_from_1000genome = list_PC_1KG, PRS_corrected_1000genome=list_PRS_reg_1KG  ), selected='PC1')
 		)
 	),
 	br(), br(),

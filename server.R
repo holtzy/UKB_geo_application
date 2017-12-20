@@ -24,11 +24,19 @@ shinyServer(function(input, output) {
 		
 	output$main_map <- renderLeaflet({
 
-		# Select the data: region or cartogram?
-		if(input$map_geo_transfo==1){
-			mydata=GBR_region
+		# Select the data: region large / region medium / hexagone?
+		if(input$map_geo_unit==1 & input$map_geo_transfo==1){ mydata=GBR_region }
+		if(input$map_geo_unit==1 & input$map_geo_transfo==2){ mydata=GBR_region_cartogram }
+		if(input$map_geo_unit==3 & input$map_geo_transfo==1){ mydata=GBR_hexa }
+		if(input$map_geo_unit==3 & input$map_geo_transfo==2){ mydata=GBR_hexa_cartogram }
+
+		# Set zoom and troke width
+		if( input$map_geo_unit!=3 ){
+			myzoom=6.3
+			mystroke=1
 		}else{
-			mydata=GBR_region_cartogram
+			myzoom=7
+			mystroke=3
 		}
 
 		# Get the variable choose by user:
@@ -44,14 +52,14 @@ shinyServer(function(input, output) {
 		  lapply(htmltools::HTML)
 		  
 		# Final Map
-		leaflet(mydata, options = leafletOptions(zoomControl = FALSE, minZoom = 6.34, maxZoom = 8)) %>% 
+		leaflet(mydata, options = leafletOptions(zoomControl = FALSE, minZoom = myzoom, maxZoom = 8)) %>% 
 		  	addPolygons( 
-		    	fillColor = ~mypalette(vector), stroke=TRUE, fillOpacity = 0.9, color="white", weight=0.3,
+		    	fillColor = ~mypalette(vector), stroke=TRUE, fillOpacity = 1, color=~mypalette(vector), weight=mystroke,
    				highlight = highlightOptions( weight = 5, color = ~mypalette(vector), dashArray = "", fillOpacity = 0.3, bringToFront = TRUE),
     			label = mytext,
     			labelOptions = labelOptions( style = list("font-weight" = "normal", padding = "3px 8px"), textsize = "13px", direction = "auto")
   			) %>%
-  		addLegend( pal=mypalette, values=~variable, opacity=0.9, title = variable, position = "topleft" )
+  		addLegend( pal=mypalette, values=~variable, opacity=0.9, title = variable, position = "bottomright" )
 
 	})
 
