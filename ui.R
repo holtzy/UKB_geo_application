@@ -28,40 +28,46 @@ shinyUI(fluidPage(
 	),
 	fluidRow( align="center",
 		br(),
-		radioGroupButtons( "section",label = NULL, choices=c("Methods"=2, "Explore"=1, "Compare"=3), selected=1 )
-	),
-	column(8, offset=2, hr()),	
-
-	# Customization button
-	fluidRow(
-		column(2, offset=1, align="left", 
-
+		column(2, offset=5, align="center", radioGroupButtons( "section",label = NULL, choices=c("Methods"=2, "Explore"=1, "Compare"=3), selected=1 )),
+	
+		# Customization button
+		column(2, offset=0, align="left", 
 			#dropdownButton(
 				#circle = TRUE, icon = icon("plus"), width = "600px", tooltip = tooltipOptions(title = "See more"),
 			
 				h2("Geographical Unit"),
 				hr(),
 				h5("We propose to work at 3 different geographical scales. This will divide UK in 414, 1k and 10k units respectively. You can also choose your resolution. Better resolution allows to zoom on the map, but a waiting time will be necessary. Click the + button for this option."),
-				pickerInput(inputId = "map_geo_unit", label = "", choices = c("Region (large)"=1, "Region (Small)"=2, "Hexagones"=3) ),
+				selectInput(inputId = "map_geo_unit", label = "", choices = c("Region (large)"=1, "Region (Small)"=2, "Hexagones"=3) ),
 				br(), br(),
 				
 				h2("Transformation"),
 				hr(),
 				h5("We propose to work at 3 different geographical scales. This will divide UK in 414, 1k and 10k units respectively. You can also choose your resolution. Better resolution allows to zoom on the map, but a waiting time will be necessary. Click the + button for this option."),
-				pickerInput(inputId = "map_geo_transfo", label = "", choices = c("No transformation"=1, "Cartogram"=2) ),
+				selectInput(inputId = "map_geo_transfo", label = "", choices = c("No transformation"=1, "Cartogram"=2) ),
 				br(), br(),
 
 				h2("Color Scale"),
 				hr(),
 				h5("We propose to work at 3 different geographical scales. This will divide UK in 414, 1k and 10k units respectively. You can also choose your resolution. Better resolution allows to zoom on the map, but a waiting time will be necessary. Click the + button for this option."),
 				strong("type of color scale:"),
-				pickerInput(inputId = "type_scale", label = "", choices = c("Bin", "Quantile", "Numerical"), selected="Bin"),
-				strong("Number of slice:"),
-				sliderInput("slider_quantile", "", min=3, max=20, value=6, ticks=F),
-		 	#),
-			h6(" More customization")
+				selectInput(inputId = "type_scale", label = "", choices = c("Bin", "Quantile", "Numerical"), selected="Bin"),
+
+
+				conditionalPanel("input.type_scale == Bin",
+					strong("Number of slice:"),
+					sliderInput("slider_quantile", "", min=3, max=20, value=6, ticks=F)
+				),
+
+				strong("Color Palette:"),
+				selectInput(inputId = "choice_palette", label = "", choices = c("Blues", "Reds", "viridis", "magma", "BuPu"), selected="Blues")
+		 	#)
 		)
 	),
+
+	column(8, offset=2, hr()),	
+
+
  	# -------------------------------------------------------------------------------------
 
 
@@ -75,7 +81,7 @@ shinyUI(fluidPage(
 	# #########
 	conditionalPanel("input.section == 1",
 		column(2, offset=1, 
-			br(), br(), br(), br(),br(), br(), br(), br(),
+			br(), br(), br(), br(),br(), br(), br(), br(),br(), br(), br(), br(),
 			h2("Welcome"),
 			hr(),
 			h5("This application describes the geographical distribution of several variable of the ", strong(a("UK Biobank dataset", style="color:lightblue", href="http://www.ukbiobank.ac.uk")), "(n=502630)."),
@@ -101,7 +107,7 @@ shinyUI(fluidPage(
 
 		# RIGHT SIDE
 		column(2, align="right",
-			br(), br(), br(), br(),br(), br(), br(), br(),
+			br(), br(), br(), br(),br(), br(), br(), br(),br(), br(), br(), br(),
 			h2("Variable"),
 			hr(),
 			h5("We propose to represent the geographical distribution of 126 variables. These veriable are split in several groups: Principal Components (PCs), Polygenic Risk Scores (PRS). To understand how these variable have been computed, visit the method section."),
@@ -128,7 +134,7 @@ shinyUI(fluidPage(
 
 		fluidRow(column(4, offset=4, align="center", h5("This section aims to compare the geographical distribution of two or more variables. Select as many variable as you like, one map will appear for each. Moreover, scroll to the bottom of this page to check the scatterplot matrix and correlation estimates of each pair."))),
 		br(),
-		fluidRow( align="center", pickerInput(inputId = "multimap_variable", label = "", choices = list(Polygenic_Risk_Score = list_PRS, PC_from_UKB = list_PC_UKB, PRS_corrected_UKB=list_PRS_reg_UKB, PC_from_1000genome = list_PC_1KG, PRS_corrected_1000genome=list_PRS_reg_1KG  ), multiple=TRUE, selected=c())),
+		fluidRow( align="center", pickerInput(inputId = "multimap_variable", label = "", choices = list(Polygenic_Risk_Score = list_PRS, PC_from_UKB = list_PC_UKB, PRS_corrected_UKB=list_PRS_reg_UKB, PC_from_1000genome = list_PC_1KG, PRS_corrected_1000genome=list_PRS_reg_1KG  ), multiple=TRUE, selected=c("PC1", "PC2"))),
 		br(),
 
 		# If less than 2 maps
