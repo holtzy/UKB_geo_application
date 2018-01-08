@@ -38,10 +38,10 @@ shinyServer(function(input, output) {
 
 		# Set zoom and troke width
 		if( input$map_geo_unit!=3 ){
-			myzoom=6.3
+			myzoom=5.7
 			mystroke=1
 		}else{
-			myzoom=7
+			myzoom=6
 			mystroke=3
 		}
 
@@ -107,6 +107,9 @@ shinyServer(function(input, output) {
 	# ------ PLOT1
 	output$compar_map1a <- output$compar_map1b <- output$compar_map1c <- output$compar_map1d <- renderLeaflet({
 
+		# I need to have enough chosen value
+		req( length(input$multimap_variable)>=1 )
+
 		mydata=mydata()
 		myzoom=myzoom()
 		mystroke=mystroke()
@@ -123,6 +126,8 @@ shinyServer(function(input, output) {
 		mytext=paste("Region: ", mydata@data$geo_label,"<br/>", "Number of people: ", mydata@data$nb_people, "<br/>", "Value: ", round(vector,2), sep="") %>%
 		  lapply(htmltools::HTML)
 		  
+  		print("map1 done") 
+
 		# Final Map
 		leaflet(mydata, options = leafletOptions(zoomControl = FALSE, minZoom = myzoom, maxZoom = 8)) %>% 
 		  	addPolygons( 
@@ -130,7 +135,8 @@ shinyServer(function(input, output) {
    				highlight = highlightOptions( weight = 5, color = ~mypalette(vector), dashArray = "", fillOpacity = 0.3, bringToFront = TRUE),
     			label = mytext,
     			labelOptions = labelOptions( style = list("font-weight" = "normal", padding = "3px 8px"), textsize = "13px", direction = "auto")
-  			) 
+  			)
+
 
 	})
 
@@ -138,6 +144,9 @@ shinyServer(function(input, output) {
 
 	# ------ PLOT2
 	output$compar_map2a <- output$compar_map2b <- output$compar_map2c <- output$compar_map2d <- renderLeaflet({
+
+		# I need to have enough chosen value
+		req( length(input$multimap_variable)>=2 )
 
 		mydata=mydata()
 		myzoom=myzoom()
@@ -155,6 +164,8 @@ shinyServer(function(input, output) {
 		mytext=paste("Region: ", mydata@data$geo_label,"<br/>", "Number of people: ", mydata@data$nb_people, "<br/>", "Value: ", round(vector,2), sep="") %>%
 		  lapply(htmltools::HTML)
 		  
+  		print("map2 done") 
+
 		# Final Map
 		leaflet(mydata, options = leafletOptions(zoomControl = FALSE, minZoom = myzoom, maxZoom = 8)) %>% 
 		  	addPolygons( 
@@ -164,11 +175,15 @@ shinyServer(function(input, output) {
     			labelOptions = labelOptions( style = list("font-weight" = "normal", padding = "3px 8px"), textsize = "13px", direction = "auto")
   			) 
 
+
 	})
 
 
 	# ------ PLOT3
 	output$compar_map3b <- output$compar_map3c <- output$compar_map3d <- renderLeaflet({
+
+		# I need to have enough chosen value
+		req( length(input$multimap_variable)>=3 )
 
 		mydata=mydata()
 		myzoom=myzoom()
@@ -186,6 +201,8 @@ shinyServer(function(input, output) {
 		mytext=paste("Region: ", mydata@data$geo_label,"<br/>", "Number of people: ", mydata@data$nb_people, "<br/>", "Value: ", round(vector,2), sep="") %>%
 		  lapply(htmltools::HTML)
 		  
+  		print("map3 done") 
+
 		# Final Map
 		leaflet(mydata, options = leafletOptions(zoomControl = FALSE, minZoom = myzoom, maxZoom = 8)) %>% 
 		  	addPolygons( 
@@ -195,11 +212,15 @@ shinyServer(function(input, output) {
     			labelOptions = labelOptions( style = list("font-weight" = "normal", padding = "3px 8px"), textsize = "13px", direction = "auto")
   			) 
 
+
 	})
 
 
 	# ------ PLOT4
 	output$compar_map4c <- output$compar_map4d <- renderLeaflet({
+
+		# I need to have enough chosen value
+		req( length(input$multimap_variable)>=4 )
 
 		mydata=mydata()
 		myzoom=myzoom()
@@ -217,6 +238,8 @@ shinyServer(function(input, output) {
 		mytext=paste("Region: ", mydata@data$geo_label,"<br/>", "Number of people: ", mydata@data$nb_people, "<br/>", "Value: ", round(vector,2), sep="") %>%
 		  lapply(htmltools::HTML)
 		  
+  		print("map4 done") 
+
 		# Final Map
 		leaflet(mydata, options = leafletOptions(zoomControl = FALSE, minZoom = myzoom, maxZoom = 8)) %>% 
 		  	addPolygons( 
@@ -232,6 +255,9 @@ shinyServer(function(input, output) {
 
 	# ------ PLOT5
 	output$compar_map5d <- renderLeaflet({
+
+		# I need to have enough chosen value
+		req( length(input$multimap_variable)>=5 )
 
 		mydata=mydata()
 		myzoom=myzoom()
@@ -249,6 +275,8 @@ shinyServer(function(input, output) {
 		mytext=paste("Region: ", mydata@data$geo_label,"<br/>", "Number of people: ", mydata@data$nb_people, "<br/>", "Value: ", round(vector,2), sep="") %>%
 		  lapply(htmltools::HTML)
 		  
+  		print("map5 done") 
+
 		# Final Map
 		leaflet(mydata, options = leafletOptions(zoomControl = FALSE, minZoom = myzoom, maxZoom = 8)) %>% 
 		  	addPolygons( 
@@ -257,6 +285,7 @@ shinyServer(function(input, output) {
     			label = mytext,
     			labelOptions = labelOptions( style = list("font-weight" = "normal", padding = "3px 8px"), textsize = "13px", direction = "auto")
   			) 
+
 
 	})
 
@@ -279,6 +308,11 @@ shinyServer(function(input, output) {
 		
 
   output$scatter=renderPlotly({ 
+
+  		# Do it only if the user is in the 'compare' tab
+  		req(input$section==3)
+
+  		print("do the scatter")
 
 		mydata=mydata()
   
@@ -334,23 +368,103 @@ shinyServer(function(input, output) {
 
 
   # ------------------------------------------------------------------------------
-  # SCATTERPLOT COMPARISON
+  # HEATMAP
   # ------------------------------------------------------------------------------
 	
 
 	output$heatmap=renderD3heatmap({
 
+  		# Do it only if the user is in the 'compare' tab
+  		req(input$section==3)
+
+  		# recover selected data
 		mydata=mydata()
 
-		mylist=list(list_PC_UKB , list_PC_1KG , list_PRS_reg_UKB , list_PRS_reg_1KG ,list_PRS)
-
-		mycor=cor(mydata@data[ , mylist[[as.numeric(input$var_heatmap)]] ] , use="complete.obs")
+		# calculate complete correlation matrix
+		mycor = GBR_region@data %>% select( -geo_label) %>% cor( . , use="complete.obs")
 		diag(mycor)=NA
 
+		# Keep only fields that interest user
+		mylist=list(list_PRS, list_PC_UKB , list_PRS_reg_UKB , list_PC_1KG ,  list_PRS_reg_1KG)
+		print(mylist)
+		row_to_keep = which( rownames(mycor) %in% mylist[[as.numeric(input$varX_heatmap)]] )
+		print(row_to_keep)
+		col_to_keep = which( rownames(mycor) %in% mylist[[as.numeric(input$varY_heatmap)]] )
+		mycor=mycor[ row_to_keep, col_to_keep ]
+
+		# graphic
 		d3heatmap(mycor, color = "Blues")
 
 	
 	})
+
+
+
+
+
+
+
+
+  # ------------------------------------------------------------------------------
+  # CHARGE OWN DATA
+  # ------------------------------------------------------------------------------
+
+
+	inFile=reactive({
+				
+		# If nothing is choosen I just ask to user to choose something
+		if ( is.null(input$file1)) {
+
+  			output$error_message<- renderUI({ helpText("Please select your file") })
+  			return(NULL)
+						
+				
+		# If the user proposes a dataset:
+		}else{
+
+			# Try to read the data
+			a=try( read.table( input$file1, header=T , dec=".", na.strings="NA")) 
+
+			# if the file is NOT readable by R
+			if(class(a)=="try-error"){
+	  			output$error_message<- renderUI({ helpText("File input is not readable by R. Please check your format" , style="color:red ; font-family: 'times'; font-size:13pt") })
+			}
+
+			# If the file is read correctly
+			inFile <- input$file1
+			output$error_message<- renderUI({ helpText("Thank you for proposing a file") })
+
+		}
+						
+
+	})
+
+	observe({ print("Mon inFile") ; print ( inFile() ) ; print("--") 	})
+
+
+
+
+
+
+
+
+
+  # ------------------------------------------------------------------------------
+  # Display an example data set
+  # ------------------------------------------------------------------------------
+
+	ex1=data.frame(
+			longitude=c( 297500, 391500, 436500, 411500, 533500, 264500 ),
+			latitude=c(  669500, 298500, 566500, 531500, 190500, 194500 ),
+			new_var_1=c( 0.123, -0.02, 0.011, 0.33, -0.211, -0.012),
+			new_var_2=c( 0.193, 0.031, 0.99, 0.390, -0.81, 0.912)
+		)
+
+
+	output$doc_ex1 <- DT::renderDataTable(
+		DT::datatable(ex1 , rownames = FALSE , options = list(dom = 't' ))
+	)
+
 
 
 

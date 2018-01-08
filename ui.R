@@ -28,12 +28,12 @@ shinyUI(fluidPage(
 	),
 	fluidRow( align="center",
 		br(),
-		column(3, offset=4, align="center", radioGroupButtons( "section",label = NULL, choices=c("Methods"=2, "Explore"=1, "Compare"=3), selected=1 )),
+		column(4, offset=4, align="center", radioGroupButtons( "section",label = NULL, choices=c("Methods"=2, "Explore"=1, "Compare"=3, "Add your data"=4), selected=1 )),
 	
 		# Customization button
 		column(2, offset=0, align="left", 
 			dropdownButton(
-				circle = TRUE, icon = icon("plus"), width = "600px", tooltip = tooltipOptions(title = "See more"),
+				circle = TRUE, icon = icon("wrench"), width = "600px", tooltip = tooltipOptions(title = "Custom your maps!"),
 			
 				h2("Geographical Unit"),
 				hr(),
@@ -54,7 +54,7 @@ shinyUI(fluidPage(
 				selectInput(inputId = "type_scale", label = "", choices = c("Bin", "Quantile", "Numerical"), selected="Bin"),
 
 				strong("Color Palette:"),
-				selectInput(inputId = "choice_palette", label = "", choices = c("Blues", "Reds", "viridis", "magma", "BuPu"), selected="BuPu"),
+				selectInput(inputId = "choice_palette", label = "", choices = c("Blues", "Reds", "viridis", "magma", "BuPu"), selected="Reds"),
 
 				strong("Number of slice:"),
 				sliderInput("slider_quantile", "", min=3, max=20, value=6, ticks=F)
@@ -95,7 +95,7 @@ shinyUI(fluidPage(
 
 		# MAP
 		column(6, align="center",
-			leafletOutput("main_map", height="1100px", width="100%") %>% withSpinner( color= "#2ecc71"),
+			leafletOutput("main_map", height="800px", width="100%") %>% withSpinner( color= "#2ecc71"),
 			br(), br(),
 			h3(tags$u(tags$b("Figure 1")),": Geographical distribution in the UK.")
 		),
@@ -132,11 +132,11 @@ shinyUI(fluidPage(
 
 		fluidRow(column(4, offset=4, align="center", h5("This section aims to compare the geographical distribution of two or more variables. Select as many variable as you like, one map will appear for each. Moreover, scroll to the bottom of this page to check the scatterplot matrix and correlation estimates of each pair."))),
 		br(),
-		fluidRow( align="center", pickerInput(inputId = "multimap_variable", label = "", choices = list(Polygenic_Risk_Score = list_PRS, PC_from_UKB = list_PC_UKB, PRS_corrected_UKB=list_PRS_reg_UKB, PC_from_1000genome = list_PC_1KG, PRS_corrected_1000genome=list_PRS_reg_1KG  ), multiple=TRUE, selected=c("PC1", "PC2"))),
+		fluidRow( align="center", pickerInput(inputId = "multimap_variable", label = "", choices = list(Polygenic_Risk_Score = list_PRS, PC_from_UKB = list_PC_UKB, PRS_corrected_UKB=list_PRS_reg_UKB, PC_from_1000genome = list_PC_1KG, PRS_corrected_1000genome=list_PRS_reg_1KG  ), multiple=TRUE, selected="PC1", width="300px")),
 		br(),
 
 		# If less than 2 maps
-		conditionalPanel( "input.multimap_variable.length<2" ,
+		conditionalPanel( "input.multimap_variable.length==1" ,
 			fluidRow(align="center", 
 				br(),br(),br(),br(),
 				h6("Please select at least 2 variables")
@@ -206,9 +206,8 @@ shinyUI(fluidPage(
 		),
 		br(),
 		fluidRow(align="center", plotlyOutput("scatter", height="700px", width="700px") %>% withSpinner( color= "#2ecc71"), 
-		fluidRow(align="center", h3(tags$u(tags$b("Figure 3")),": Pairwise relationship of your selected variables"))
+		fluidRow(align="center", h3(tags$u(tags$b("Figure 3")),": Pairwise relationship of your selected variables")),
 
-		),
 
 
 
@@ -221,9 +220,12 @@ shinyUI(fluidPage(
 			)
 		),
 		br(),
-		fluidRow(align="center", d3heatmapOutput("heatmap", width="700px", height="700px") %>% withSpinner( color= "#2ecc71"), 
-		fluidRow(align="center", h3(tags$u(tags$b("Figure 4")),": Heatmap")),
-		radioGroupButtons(inputId = "var_heatmap", label = "", choices = c("PRS (no correction)" = 1, "UKB PCs" = 2, "PRS corrected by UKB"=3, "1000 genome PCs" = 4, "PRS corrected by 1000g"=5  ), selected=2)
+		fluidRow(align="center", 
+			column(6, offset=3, d3heatmapOutput("heatmap", width="700px", height="700px") %>% withSpinner( color= "#2ecc71")),
+			column(1, br(),br(),br(),br(),br(),br(),br(), radioGroupButtons(inputId = "varY_heatmap", label = "", choices = c("PRS (no correction)" = 1, "UKB PCs" = 2, "PRS corrected by UKB"=3, "1000 genome PCs" = 4, "PRS corrected by 1000g"=5  ), selected=2, direction = "vertical") )
+		), 
+		fluidRow(align="center", column(4, offset=4, h3(tags$u(tags$b("Figure 4")),": Heatmap displaying the Pearson correlation coefficient between variable. Pick up the group of traits of the Y axis using the right buttons (and use bottom buttons for the X axis)."))),
+		radioGroupButtons(inputId = "varX_heatmap", label = "", choices = c("PRS (no correction)" = 1, "UKB PCs" = 2, "PRS corrected by UKB"=3, "1000 genome PCs" = 4, "PRS corrected by 1000g"=5  ), selected=2)
 
 
 		)
@@ -313,6 +315,35 @@ shinyUI(fluidPage(
 
 
 
+
+	# #########
+	#	TAB : ADD YOUR DATA
+	# #########
+	conditionalPanel("input.section == 4",
+
+		fluidRow(column( 6, offset=3, align="center",
+			h5("It is possible to load your own data in this application to visualize it in a UK map. Load your data using the button below:"),
+			fileInput("file1", "Choose" , multiple = FALSE),
+			br(), br(),
+			uiOutput("error_message")
+		)),
+
+		fluidRow( column(2, offset=5, align="center",
+			dataTableOutput('doc_ex1' ),
+			h3(tags$u(tags$b("Figure x")),": How your data must be formatted")
+
+		))
+
+	),
+
+
+
+
+
+
+
+
+
 	# #########
 	#	FOOTER
 	# #########
@@ -325,9 +356,9 @@ shinyUI(fluidPage(
 		column(4, offset=4,
 			hr(),
 			br(), br(),
-			"Created by", strong(a("Yan Holtz", style="color:lightblue", href="https://holtzyan.wordpress.com")), ".",
+			"A project by", strong(a("A. Abdellaoui", style="color:lightblue", href="https://www.researchgate.net/profile/Abdel_Abdellaoui")), ",", strong(a("Y. Holtz", style="color:lightblue", href="https://holtzyan.wordpress.com")), "and", strong(a("xxx", style="color:lightblue", href="https://holtzyan.wordpress.com")), ".",
 			br(),
-			"Source code available on", strong(a("Github", style="color:lightblue", href="https://github.com/holtzy/the-NB-COMO-Project")), ".",
+			"Source code available on", strong(a("Github", style="color:lightblue", href="https://github.com/holtzy/UKB_geo_application")), ".",
 			br(),
 			"Copyright © 2017 Genes, Geography in the UKB",
 			br(), br(),br()

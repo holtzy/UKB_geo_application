@@ -59,3 +59,5 @@ list_PRS=all[ !all %in% c(list_PC_UKB, list_PC_1KG, list_PRS_reg_UKB, list_PRS_r
 
 
 
+
+

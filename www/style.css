@@ -130,6 +130,15 @@ h3 {
     box-shadow: 0px 0px 0px #888888;
 }
 
+
+.btn-circle.btn-lg {
+    width: 53px;
+    height: 53px;
+    box-shadow: 0px 0px 0px #888888;
+    line-height: 0;
+}
+
+
 /* ------------------------------------------------------------*/ 
 
 
