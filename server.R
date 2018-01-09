@@ -11,28 +11,7 @@ shinyServer(function(input, output) {
 
 
 
-  # ------------------------------------------------------------------------------
-  # REACTIVE FOR DATA SELECTION (TAB WITH ONE MAP ONLY)
-  # ------------------------------------------------------------------------------
 
-
-  mydata=reactive({
-
- 		# Case number one: we show our data:
- 		if( input$map_variable %in% all ){
- 			if(input$map_geo_unit==1 & input$map_geo_transfo==1){ return(GBR_region) }
-			if(input$map_geo_unit==1 & input$map_geo_transfo==2){ return(GBR_region_cartogram) }
-			if(input$map_geo_unit==3 & input$map_geo_transfo==1){ return(GBR_hexa) }
-			if(input$map_geo_unit==3 & input$map_geo_transfo==2){ return(GBR_hexa_cartogram) }
-		# Second case: we show user uploaded data:
-		} else {
- 			if(input$map_geo_unit==1 & input$map_geo_transfo==1){ return(user_data()[[1]]) }
-			if(input$map_geo_unit==1 & input$map_geo_transfo==2){ return(user_data()[[2]]) }
-			if(input$map_geo_unit==3 & input$map_geo_transfo==1){ return(user_data()[[3]]) }
-			if(input$map_geo_unit==3 & input$map_geo_transfo==2){ return(user_data()[[4]]) }
-		}
-
-  	})
 
 
 
@@ -43,7 +22,7 @@ shinyServer(function(input, output) {
 		
 	output$main_map <- renderLeaflet({
 
-		mydata=mydata()
+		mydata=return_appropriate_dataset( input$map_variable, input$map_geo_unit, input$map_geo_transfo)
 
 		# Set zoom and troke width
 		if( input$map_geo_unit!=3 ){
@@ -119,7 +98,7 @@ shinyServer(function(input, output) {
 		# I need to have enough chosen value
 		req( length(input$multimap_variable)>=1 )
 
-		mydata=mydata()
+		mydata=return_appropriate_dataset( input$multimap_variable[1], input$map_geo_unit, input$map_geo_transfo)
 		myzoom=myzoom()
 		mystroke=mystroke()
 
@@ -134,9 +113,9 @@ shinyServer(function(input, output) {
 		# text
 		mytext=paste("Region: ", mydata@data$geo_label,"<br/>", "Number of people: ", mydata@data$nb_people, "<br/>", "Value: ", round(vector,2), sep="") %>%
 		  lapply(htmltools::HTML)
-		  
-  		print("map1 done") 
 
+  		print("map1 done") 
+		  
 		# Final Map
 		leaflet(mydata, options = leafletOptions(zoomControl = FALSE, minZoom = myzoom, maxZoom = 8)) %>% 
 		  	addPolygons( 
@@ -157,7 +136,7 @@ shinyServer(function(input, output) {
 		# I need to have enough chosen value
 		req( length(input$multimap_variable)>=2 )
 
-		mydata=mydata()
+		mydata=return_appropriate_dataset( input$multimap_variable[2], input$map_geo_unit, input$map_geo_transfo)
 		myzoom=myzoom()
 		mystroke=mystroke()
 
@@ -194,7 +173,7 @@ shinyServer(function(input, output) {
 		# I need to have enough chosen value
 		req( length(input$multimap_variable)>=3 )
 
-		mydata=mydata()
+		mydata=return_appropriate_dataset( input$multimap_variable[3], input$map_geo_unit, input$map_geo_transfo)
 		myzoom=myzoom()
 		mystroke=mystroke()
 
@@ -231,7 +210,7 @@ shinyServer(function(input, output) {
 		# I need to have enough chosen value
 		req( length(input$multimap_variable)>=4 )
 
-		mydata=mydata()
+		mydata=return_appropriate_dataset( input$multimap_variable[4], input$map_geo_unit, input$map_geo_transfo)
 		myzoom=myzoom()
 		mystroke=mystroke()
 
@@ -268,7 +247,7 @@ shinyServer(function(input, output) {
 		# I need to have enough chosen value
 		req( length(input$multimap_variable)>=5 )
 
-		mydata=mydata()
+		mydata=return_appropriate_dataset( input$multimap_variable[5], input$map_geo_unit, input$map_geo_transfo)
 		myzoom=myzoom()
 		mystroke=mystroke()
 
@@ -323,7 +302,7 @@ shinyServer(function(input, output) {
 
   		print("do the scatter")
 
-		mydata=mydata()
+		mydata=return_appropriate_dataset( input$multimap_variable[1], input$map_geo_unit, input$map_geo_transfo)
   
   		# Prepare text
 		mydata@data$text=paste("PC1: ", round(mydata@data$PC1, 2), sep="")
@@ -387,7 +366,7 @@ shinyServer(function(input, output) {
   		req(input$section==3)
 
   		# recover selected data
-		mydata=mydata()
+		mydata=return_appropriate_dataset( input$multimap_variable[1], input$map_geo_unit, input$map_geo_transfo)
 
 		# calculate complete correlation matrix
 		mycor = GBR_region@data %>% select( -geo_label) %>% cor( . , use="complete.obs")
@@ -395,9 +374,7 @@ shinyServer(function(input, output) {
 
 		# Keep only fields that interest user
 		mylist=list(list_PRS, list_PC_UKB , list_PRS_reg_UKB , list_PC_1KG ,  list_PRS_reg_1KG)
-		print(mylist)
 		row_to_keep = which( rownames(mycor) %in% mylist[[as.numeric(input$varX_heatmap)]] )
-		print(row_to_keep)
 		col_to_keep = which( rownames(mycor) %in% mylist[[as.numeric(input$varY_heatmap)]] )
 		mycor=mycor[ row_to_keep, col_to_keep ]
 

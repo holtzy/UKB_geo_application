@@ -58,6 +58,9 @@ list_PRS=all[ !all %in% c(list_PC_UKB, list_PC_1KG, list_PRS_reg_UKB, list_PRS_r
 #list_user_variables=NULL
 
 
+
+
+
 # -----------------------------------
 # 3- SOURCE FUNCTION THAT ANALYSE USER DATA
 source("3_Link_With_Shapes.R")
@@ -69,9 +72,26 @@ load("~/Dropbox/QBI/15_ABDEL_UKB_MAP/UKB_geo_application/DATA/Map_data.Rdata")
 
 
 
+# -----------------------------------
+# 4- A FUNCTION THAT RETURN THE APPROPRIATE DATASET TO FIT USER NEEDS
 
+return_appropriate_dataset = function( map_variable, map_geo_unit, map_geo_transfo){
 
+	# Case number one: we show our data:
+	if( map_variable %in% all ){
+		if(map_geo_unit==1 & map_geo_transfo==1){ return(GBR_region) }
+		if(map_geo_unit==1 & map_geo_transfo==2){ return(GBR_region_cartogram) }
+		if(map_geo_unit==3 & map_geo_transfo==1){ return(GBR_hexa) }
+		if(map_geo_unit==3 & map_geo_transfo==2){ return(GBR_hexa_cartogram) }
+	# Second case: we show user uploaded data:
+	} else {
+		if(map_geo_unit==1 & map_geo_transfo==1){ return(user_data()[[1]]) }
+		if(map_geo_unit==1 & map_geo_transfo==2){ return(user_data()[[2]]) }
+		if(map_geo_unit==3 & map_geo_transfo==1){ return(user_data()[[3]]) }
+		if(map_geo_unit==3 & map_geo_transfo==2){ return(user_data()[[4]]) }
+	}
 
+}
 
 
 
