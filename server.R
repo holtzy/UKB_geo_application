@@ -22,7 +22,7 @@ shinyServer(function(input, output) {
 		
 	output$main_map <- renderLeaflet({
 
-		mydata=return_appropriate_dataset( input$map_variable, input$map_geo_unit, input$map_geo_transfo)
+		mydata=return_appropriate_dataset( input$map_variable, input$map_geo_unit, input$map_geo_transfo, user_data() )
 
 		# Set zoom and troke width
 		if( input$map_geo_unit!=3 ){
@@ -98,7 +98,7 @@ shinyServer(function(input, output) {
 		# I need to have enough chosen value
 		req( length(input$multimap_variable)>=1 )
 
-		mydata=return_appropriate_dataset( input$multimap_variable[1], input$map_geo_unit, input$map_geo_transfo)
+		mydata=return_appropriate_dataset( input$multimap_variable[1], input$map_geo_unit, input$map_geo_transfo,  user_data())
 		myzoom=myzoom()
 		mystroke=mystroke()
 
@@ -136,7 +136,7 @@ shinyServer(function(input, output) {
 		# I need to have enough chosen value
 		req( length(input$multimap_variable)>=2 )
 
-		mydata=return_appropriate_dataset( input$multimap_variable[2], input$map_geo_unit, input$map_geo_transfo)
+		mydata=return_appropriate_dataset( input$multimap_variable[2], input$map_geo_unit, input$map_geo_transfo, user_data())
 		myzoom=myzoom()
 		mystroke=mystroke()
 
@@ -173,7 +173,7 @@ shinyServer(function(input, output) {
 		# I need to have enough chosen value
 		req( length(input$multimap_variable)>=3 )
 
-		mydata=return_appropriate_dataset( input$multimap_variable[3], input$map_geo_unit, input$map_geo_transfo)
+		mydata=return_appropriate_dataset( input$multimap_variable[3], input$map_geo_unit, input$map_geo_transfo,  user_data())
 		myzoom=myzoom()
 		mystroke=mystroke()
 
@@ -210,7 +210,7 @@ shinyServer(function(input, output) {
 		# I need to have enough chosen value
 		req( length(input$multimap_variable)>=4 )
 
-		mydata=return_appropriate_dataset( input$multimap_variable[4], input$map_geo_unit, input$map_geo_transfo)
+		mydata=return_appropriate_dataset( input$multimap_variable[4], input$map_geo_unit, input$map_geo_transfo,  user_data())
 		myzoom=myzoom()
 		mystroke=mystroke()
 
@@ -247,7 +247,7 @@ shinyServer(function(input, output) {
 		# I need to have enough chosen value
 		req( length(input$multimap_variable)>=5 )
 
-		mydata=return_appropriate_dataset( input$multimap_variable[5], input$map_geo_unit, input$map_geo_transfo)
+		mydata=return_appropriate_dataset( input$multimap_variable[5], input$map_geo_unit, input$map_geo_transfo, user_data())
 		myzoom=myzoom()
 		mystroke=mystroke()
 
@@ -302,7 +302,7 @@ shinyServer(function(input, output) {
 
   		print("do the scatter")
 
-		mydata=return_appropriate_dataset( input$multimap_variable[1], input$map_geo_unit, input$map_geo_transfo)
+		mydata=return_appropriate_dataset( input$multimap_variable[1], input$map_geo_unit, input$map_geo_transfo,  user_data())
   
   		# Prepare text
 		mydata@data$text=paste("PC1: ", round(mydata@data$PC1, 2), sep="")
@@ -366,7 +366,7 @@ shinyServer(function(input, output) {
   		req(input$section==3)
 
   		# recover selected data
-		mydata=return_appropriate_dataset( input$multimap_variable[1], input$map_geo_unit, input$map_geo_transfo)
+		mydata=return_appropriate_dataset( input$multimap_variable[1], input$map_geo_unit, input$map_geo_transfo, user_data())
 
 		# calculate complete correlation matrix
 		mycor = GBR_region@data %>% select( -geo_label) %>% cor( . , use="complete.obs")
@@ -447,6 +447,7 @@ shinyServer(function(input, output) {
 			print("ok - data ready")
 			return(tmp)		
 	})
+
 	# And show a message that tells if computation is over.
 	output$info_message<- renderUI({ 
 		if(is.null( user_data() )){
@@ -464,7 +465,7 @@ shinyServer(function(input, output) {
 	})
 
 	output$multimap_variable_button <- renderUI({
-		pickerInput(inputId = "multimap_variable", label = "", choices = list(User_variables=colnames(inFile())[-c(1)], Polygenic_Risk_Score = list_PRS, PC_from_UKB = list_PC_UKB, PRS_corrected_UKB=list_PRS_reg_UKB, PC_from_1000genome = list_PC_1KG, PRS_corrected_1000genome=list_PRS_reg_1KG  ), multiple=TRUE, selected="PC1", width="300px")
+		pickerInput(inputId = "multimap_variable", label = "", choices = list(User_variables=colnames(inFile())[-c(1)], Polygenic_Risk_Score = list_PRS, PC_from_UKB = list_PC_UKB, PRS_corrected_UKB=list_PRS_reg_UKB, PC_from_1000genome = list_PC_1KG, PRS_corrected_1000genome=list_PRS_reg_1KG  ), multiple=TRUE, selected=c("PC1", "PC2"), width="300px")
 	})
 		
 		

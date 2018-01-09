@@ -27,10 +27,9 @@
 # Load the individual matrix saved in part1
 #load("/Users/y.holtz/Desktop/ABDEL_DATA/Individual_Matrix_UKB.Rdata")
 #ls()
-#source("~/Dropbox/QBI/15_ABDEL_UKB_MAP/UKB_geo_application/3_Link_With_Shapes.R")
 #load("~/Dropbox/QBI/15_ABDEL_UKB_MAP/UKB_geo_application/DATA/Map_data.Rdata")
-#compute_shape_sumstat(input, output)
-#compute_shape_sumstat(UKB[,-1], "/Users/y.holtz/Dropbox/QBI/15_ABDEL_UKB_MAP/UKB_geo_application/DATA/Abdel_data.Rdata")
+#input=UKB
+#output="/Users/y.holtz/Dropbox/QBI/15_ABDEL_UKB_MAP/UKB_geo_application/DATA/Abdel_data.Rdata"
 
 
 # 2 - The user of the app can load his data and it will run the script as well:
@@ -138,10 +137,10 @@ compute_shape_sumstat = function(input, output){
   
   
   # ----------- REGION LARGE ---------------------------
-  GBR_region_cartogram = cartogram(GBR_region, "nb_people", itermax=1)
+  GBR_region_cartogram = cartogram(GBR_region, "nb_people", itermax=2)
   
   # ----------- HEXAGONE ---------------------------
-  GBR_hexa_cartogram = cartogram(GBR_hexa, "nb_people", itermax=1)
+  GBR_hexa_cartogram = cartogram(GBR_hexa, "nb_people", itermax=2)
   
 
 
