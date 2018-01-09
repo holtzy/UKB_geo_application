@@ -12,16 +12,25 @@ shinyServer(function(input, output) {
 
 
   # ------------------------------------------------------------------------------
-  # REACTIVE FOR DATA SELECTION
+  # REACTIVE FOR DATA SELECTION (TAB WITH ONE MAP ONLY)
   # ------------------------------------------------------------------------------
 
 
   mydata=reactive({
 
- 		if(input$map_geo_unit==1 & input$map_geo_transfo==1){ return(GBR_region) }
-		if(input$map_geo_unit==1 & input$map_geo_transfo==2){ return(GBR_region_cartogram) }
-		if(input$map_geo_unit==3 & input$map_geo_transfo==1){ return(GBR_hexa) }
-		if(input$map_geo_unit==3 & input$map_geo_transfo==2){ return(GBR_hexa_cartogram) }
+ 		# Case number one: we show our data:
+ 		if( input$map_variable %in% all ){
+ 			if(input$map_geo_unit==1 & input$map_geo_transfo==1){ return(GBR_region) }
+			if(input$map_geo_unit==1 & input$map_geo_transfo==2){ return(GBR_region_cartogram) }
+			if(input$map_geo_unit==3 & input$map_geo_transfo==1){ return(GBR_hexa) }
+			if(input$map_geo_unit==3 & input$map_geo_transfo==2){ return(GBR_hexa_cartogram) }
+		# Second case: we show user uploaded data:
+		} else {
+ 			if(input$map_geo_unit==1 & input$map_geo_transfo==1){ return(user_data()[[1]]) }
+			if(input$map_geo_unit==1 & input$map_geo_transfo==2){ return(user_data()[[2]]) }
+			if(input$map_geo_unit==3 & input$map_geo_transfo==1){ return(user_data()[[3]]) }
+			if(input$map_geo_unit==3 & input$map_geo_transfo==2){ return(user_data()[[4]]) }
+		}
 
   	})
 
@@ -61,8 +70,6 @@ shinyServer(function(input, output) {
 			mypalette = colorNumeric( palette=input$choice_palette, domain=vector, na.color="transparent")
 		}
 
-		print("yoo")
-		print(mypalette(0.1))
 		# text
 		mytext=paste("Region: ", mydata@data$geo_label,"<br/>", "Number of people: ", mydata@data$nb_people, "<br/>", "Value: ", round(vector,2), sep="") %>%
 		  lapply(htmltools::HTML)
@@ -78,6 +85,8 @@ shinyServer(function(input, output) {
   		addLegend( pal=mypalette, values=vector, opacity=0.9, title = variable, position = "bottomright" )
 
 	})
+
+
 
 
 
@@ -406,10 +415,11 @@ shinyServer(function(input, output) {
 
 
   # ------------------------------------------------------------------------------
-  # CHARGE OWN DATA
+  # LOAD USER DATA
   # ------------------------------------------------------------------------------
 
 
+	# --- First step = load the User data frame
 	inFile=reactive({
 				
 		# If nothing is choosen I just ask to user to choose something
@@ -423,23 +433,65 @@ shinyServer(function(input, output) {
 		}else{
 
 			# Try to read the data
-			a=try( read.table( input$file1, header=T , dec=".", na.strings="NA")) 
+			userdata=try( read.table( input$file1$datapath, header=TRUE )) 
 
 			# if the file is NOT readable by R
-			if(class(a)=="try-error"){
+			if(class(userdata)=="try-error"){
 	  			output$error_message<- renderUI({ helpText("File input is not readable by R. Please check your format" , style="color:red ; font-family: 'times'; font-size:13pt") })
-			}
+				return(NULL)
+			
 
 			# If the file is read correctly
-			inFile <- input$file1
-			output$error_message<- renderUI({ helpText("Thank you for proposing a file") })
+			} else {
+				output$error_message<- renderUI({ helpText(NULL) })
+				return(userdata)
 
+			}
 		}
-						
 
 	})
 
-	observe({ print("Mon inFile") ; print ( inFile() ) ; print("--") 	})
+
+	# --- Second step: show the loaded data
+	observe({
+		output$doc_real <- DT::renderDataTable(
+			DT::datatable( inFile()[c(1:5) , ] , rownames = FALSE , options = list(dom = 't' ))
+		)
+	})
+
+
+
+	# --- Third step: run a function that make link between shapes and user data frame. It returns several objects
+	user_data <- eventReactive(input$button_computation, {	
+			
+			# run the function
+			print("compute data")
+			tmp=compute_shape_sumstat( inFile(), "")
+			print("ok - data ready")
+			return(tmp)		
+	})
+	# And show a message that tells if computation is over.
+	output$info_message<- renderUI({ 
+		if(is.null( user_data() )){
+			helpText("pas de user data") 
+		}else{
+			helpText("Computation done. You're ready to explore your data.") 	
+		}
+	})
+
+
+
+	# --- Last step: the UI buttons must be re-generated when new data are loaded:
+	output$map_variable_button <- renderUI({
+		pickerInput(inputId = "map_variable", label = "", choices = list(User_variables=colnames(inFile())[-c(1)], Polygenic_Risk_Score = list_PRS, PC_from_UKB = list_PC_UKB, PRS_corrected_UKB=list_PRS_reg_UKB, PC_from_1000genome = list_PC_1KG, PRS_corrected_1000genome=list_PRS_reg_1KG  ), selected='PC1')
+	})
+
+	output$multimap_variable_button <- renderUI({
+		pickerInput(inputId = "multimap_variable", label = "", choices = list(User_variables=colnames(inFile())[-c(1)], Polygenic_Risk_Score = list_PRS, PC_from_UKB = list_PC_UKB, PRS_corrected_UKB=list_PRS_reg_UKB, PC_from_1000genome = list_PC_1KG, PRS_corrected_1000genome=list_PRS_reg_1KG  ), multiple=TRUE, selected="PC1", width="300px")
+	})
+		
+		
+
 
 
 

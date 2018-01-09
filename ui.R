@@ -109,7 +109,7 @@ shinyUI(fluidPage(
 			h2("Variable"),
 			hr(),
 			h5("We propose to represent the geographical distribution of 126 variables. These veriable are split in several groups: Principal Components (PCs), Polygenic Risk Scores (PRS). To understand how these variable have been computed, visit the method section."),
-			pickerInput(inputId = "map_variable", label = "", choices = list(Polygenic_Risk_Score = list_PRS, PC_from_UKB = list_PC_UKB, PRS_corrected_UKB=list_PRS_reg_UKB, PC_from_1000genome = list_PC_1KG, PRS_corrected_1000genome=list_PRS_reg_1KG  ), selected='PC1')
+			uiOutput("map_variable_button")
 		)
 	),
 	br(), br(),
@@ -132,7 +132,7 @@ shinyUI(fluidPage(
 
 		fluidRow(column(4, offset=4, align="center", h5("This section aims to compare the geographical distribution of two or more variables. Select as many variable as you like, one map will appear for each. Moreover, scroll to the bottom of this page to check the scatterplot matrix and correlation estimates of each pair."))),
 		br(),
-		fluidRow( align="center", pickerInput(inputId = "multimap_variable", label = "", choices = list(Polygenic_Risk_Score = list_PRS, PC_from_UKB = list_PC_UKB, PRS_corrected_UKB=list_PRS_reg_UKB, PC_from_1000genome = list_PC_1KG, PRS_corrected_1000genome=list_PRS_reg_1KG  ), multiple=TRUE, selected="PC1", width="300px")),
+		fluidRow( align="center", uiOutput("multimap_variable_button")),
 		br(),
 
 		# If less than 2 maps
@@ -321,18 +321,48 @@ shinyUI(fluidPage(
 	# #########
 	conditionalPanel("input.section == 4",
 
-		fluidRow(column( 6, offset=3, align="center",
-			h5("It is possible to load your own data in this application to visualize it in a UK map. Load your data using the button below:"),
-			fileInput("file1", "Choose" , multiple = FALSE),
-			br(), br(),
-			uiOutput("error_message")
+		fluidRow(column( 4, offset=4, align="center",
+			br(),
+			h5("It is possible to load your own data in this application to visualize it on a UK map. First load your file which must be in a specific format. Once this file is correctly uploaded, you can calculate summary statistics per area and visualize it")
 		)),
 
-		fluidRow( column(2, offset=5, align="center",
-			dataTableOutput('doc_ex1' ),
-			h3(tags$u(tags$b("Figure x")),": How your data must be formatted")
+		fluidRow(column(7, offset=2, align="left",
+			br(), 
+			h2("1 - Load your file"),
+			hr(),
+			h5("Your file must be composed by at least 3 columns. The two first columns must be longitude and latitude respectively (use OSGB 1936 projection, as provided in the UKBiobank dataset). All other columns are your variables that must be normalized and centered. Each line is an individual. File can be compressed (.gz). Respect header shown in the example. Column must be separated by spaces."),
+			br(), br()
+		)),
+		
+		fluidRow( align="center",
+			column(4,
+				h6("Select your file"),
+				br(), br(), br(),
+				fileInput("file1", "" , multiple = FALSE)				
+			),
+			column(4,
+				h6("How it should look like:"),
+				dataTableOutput('doc_ex1' , width="70%" )
+			),
+			column(4,
+				h6("How it does look like:"),
+				uiOutput("error_message"),
+				dataTableOutput('doc_real' , width="70%" )
+			)
+		),
 
+		fluidRow(column(7, offset=2, align="left",
+			br(), br(), br(), br(),br(), 
+			h2("2 - Calculate summary statistics"),
+			hr(),
+			h5("Once your file as been read correctly, you can run the spatial analysis. This calculation will calculate summary statics for every region of the maps and build the cartograms. Once the computation is done, you will be automatically redirected to the welcome page and all your variable will be available in the 'variable' button"),
+			br(), 
+			actionButton("button_computation", "Run analysis"),
+			uiOutput("info_message") %>% withSpinner( color= "#2ecc71"),
+			br()			
 		))
+
+
 
 	),
 

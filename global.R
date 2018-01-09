@@ -33,6 +33,9 @@ library(GGally)				# For the scatterplot matrix
 library(d3heatmap)
 
 
+
+
+
 # -----------------------------------
 # 1- LOAD DATA
 
@@ -52,7 +55,19 @@ list_PC_1KG = all[ grepl("^PC", all ) & grepl("1kG", all ) ]
 list_PRS_reg_UKB = all[ grepl("\\.residual", all )  ]
 list_PRS_reg_1KG = all[ grepl("_residual", all )  ]
 list_PRS=all[ !all %in% c(list_PC_UKB, list_PC_1KG, list_PRS_reg_UKB, list_PRS_reg_1KG)]
-  
+#list_user_variables=NULL
+
+
+# -----------------------------------
+# 3- SOURCE FUNCTION THAT ANALYSE USER DATA
+source("3_Link_With_Shapes.R")
+load("~/Dropbox/QBI/15_ABDEL_UKB_MAP/UKB_geo_application/DATA/Map_data.Rdata")
+
+
+
+
+
+
 
 
 
