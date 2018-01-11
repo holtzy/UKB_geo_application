@@ -145,48 +145,6 @@ compute_shape_sumstat = function(input, output){
 
 
 
-
-
-
-
-
-  
-  ################################################################
-  # PART X - SPATIAL AUTOCORRELATIONS
-  ################################################################
-  
-  # see: https://cran.r-project.org/web/packages/spdep/vignettes/nb_igraph.html 
-  
-  
-  
-  # ----------- REGION LARGE ---------------------------
-  
-  # make neighbour list object
-  #nb.GBR_dist.UKB.PCs <- poly2nb(GBR_dist.UKB.PCs)
-  #summary(nb.GBR_dist.UKB.PCs)
-  #is.symmetric.nb(nb.GBR_dist.UKB.PCs)
-  #coords <- coordinates(GBR_dist.UKB.PCs)
-  
-  # make spatial weights object
-  #sp_weights.GBR_dist.UKB.PCs <- nb2listw(nb.GBR_dist.UKB.PCs, style="B", zero.policy=TRUE)
-  #sp_weights.GBR_dist.UKB.PCs$style
-  #B.GBR_dist.UKB.PCs <- as(sp_weights.GBR_dist.UKB.PCs, "symmetricMatrix")
-  #all(B.GBR_dist.UKB.PCs == t(B.GBR_dist.UKB.PCs))
-  
-  # make spatial weights matrix
-  #wm.GBR_dist.UKB.PCs <- nb2mat(nb.GBR_dist.UKB.PCs, style='B', zero.policy = TRUE)
-  
-  # moran test
-  #moran_test.all <- lapply(GBR_dist.UKB.over, moran.mc, sp_weights.GBR_dist.UKB.PCs, nsim=10000, zero.policy = TRUE)
-  #MoransResults.full <- t(simplify2array(moran_test.all))
-  #MoransResults.stats <- as.data.frame(MoransResults.full[,1:3])
-  #MoransResults.file <- t(do.call(rbind, lapply(MoransResults.stats, unlist)))
-  
-  
-  
-  
-  
-  
   
   
   
