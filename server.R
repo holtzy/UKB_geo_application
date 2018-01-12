@@ -7,7 +7,7 @@
 
 
 # open server
-shinyServer(function(input, output) {
+shinyServer(function(input, output, session) {
 
 
 
@@ -61,8 +61,22 @@ shinyServer(function(input, output) {
     			label = mytext,
     			labelOptions = labelOptions( style = list("font-weight" = "normal", padding = "3px 8px"), textsize = "13px", direction = "auto")
   			) %>%
-  		addLegend( pal=mypalette, values=vector, opacity=0.9, title = variable, position = "bottomright" )
+  			addLegend( pal=mypalette, values=vector, opacity=0.9, title = variable, position = "bottomright" )
 
+	})
+
+
+	# And return a title for this plot
+	output$title_map1<- renderUI({ 
+		mytext=paste( "Geographical distribution of ", input$map_variable, " in the UK", sep="")
+		h3( tags$u(tags$b("Figure 1: ")) , mytext )
+	})
+	output$moran_map1<- renderUI({ 
+		req(input$map_variable != "")
+		variable=input$map_variable
+		my_moran = moran_data[ which(rownames(moran_data)==variable),"statistic"] %>% round(2)
+		mytext=paste( "Moran Coefficient: ", my_moran, sep="" )
+		h3(mytext)
 	})
 
 
@@ -70,6 +84,31 @@ shinyServer(function(input, output) {
 
 
 
+
+  # ------------------------------------------------------------------------------
+  # BARPLOT WITH THE MORAN VALUES OF VARIABLE
+  # ------------------------------------------------------------------------------
+	
+
+  output$barplot=renderPlot({ 
+
+  	moran_data %>%
+  		data.frame() %>%
+  		rownames_to_column(var = "variable") %>%
+		filter( ! variable %in%  c( list_PC_1KG, list_PRS_reg_UKB, list_PRS_reg_1KG ) )%>%
+		arrange(statistic) %>%
+		mutate(variable=factor(variable, variable)) %>%
+		ggplot( aes(x=variable, y=statistic, fill=statistic)) +
+			geom_bar( stat="identity", width=0.5) +
+		    scale_fill_viridis() +
+		    coord_flip() +
+		    ylab("Moran I value") +
+		    xlab("") +
+		    theme_minimal() +
+		    theme(legend.position="none", axis.text=element_text(size=13))
+
+
+  	})
 
 
 
@@ -84,11 +123,13 @@ shinyServer(function(input, output) {
 
   	# ----- REACTIVE ZOOM AND STROKE VALUE
   	myzoom=reactive({
-  		if( input$map_geo_unit!=3 ){ return(6) }else{return(6)}
+  		if( input$map_geo_unit!=3 ){ ifelse(length(input$multimap_variable)==5, return(5.2), return(5.7)) }else{ifelse(length(input$multimap_variable)==5, return(5.6), return(6.2))}
   	})
     mystroke=reactive({
   		if( input$map_geo_unit!=3 ){ return(1) }else{return(3)}
   	})	
+
+
 
 
 
@@ -127,6 +168,9 @@ shinyServer(function(input, output) {
 
 
 	})
+
+
+
 
 
 
@@ -280,8 +324,32 @@ shinyServer(function(input, output) {
 
 
 
-
-
+	# Titles
+	output$title_multimap1a <- output$title_multimap1b <- output$title_multimap1c <- output$title_multimap1d <- renderUI({ 
+		req( length(input$multimap_variable)>=1 )
+		my_moran = moran_data[ which(rownames(moran_data)==input$multimap_variable[1]),"statistic"] %>% round(2)
+		helpText(a(input$multimap_variable[1], style="color:#2ecc71; font-size:22px;") , " (", my_moran, ")", sep="")
+	})
+	output$title_multimap2a <- output$title_multimap2b <- output$title_multimap2c <- output$title_multimap2d<- renderUI({ 
+		req( length(input$multimap_variable)>=2 )
+		my_moran = moran_data[ which(rownames(moran_data)==input$multimap_variable[2]),"statistic"] %>% round(2)
+		helpText(a(input$multimap_variable[2], style="color:#2ecc71; font-size:22px;") , " (", my_moran, ")", sep="")
+	})
+	output$title_multimap3b <- output$title_multimap3c <- output$title_multimap3d <-  renderUI({ 
+		req( length(input$multimap_variable)>=3 )
+		my_moran = moran_data[ which(rownames(moran_data)==input$multimap_variable[3]),"statistic"] %>% round(2)
+		helpText(a(input$multimap_variable[3], style="color:#2ecc71; font-size:22px;") , " (", my_moran, ")", sep="")
+	})
+	output$title_multimap4c <- output$title_multimap4d <- renderUI({ 
+		req( length(input$multimap_variable)>=4 )
+		my_moran = moran_data[ which(rownames(moran_data)==input$multimap_variable[4]),"statistic"] %>% round(2)
+		helpText(a(input$multimap_variable[4], style="color:#2ecc71; font-size:22px;") , " (", my_moran, ")", sep="")
+	})
+	output$title_multimap5d<- renderUI({ 
+		req( length(input$multimap_variable)>=5 )
+		my_moran = moran_data[ which(rownames(moran_data)==input$multimap_variable[5]),"statistic"] %>% round(2)
+		helpText(a(input$multimap_variable[5], style="color:#2ecc71; font-size:22px;") , " (", my_moran, ")", sep="")
+	})
 
 
 
@@ -293,30 +361,48 @@ shinyServer(function(input, output) {
   # ------------------------------------------------------------------------------
   # SCATTERPLOT COMPARISON
   # ------------------------------------------------------------------------------
-		
+	
 
-  output$scatter=renderPlotly({ 
+	# 2 input selector for X and Y axis
+	output$choice_X_scatter<- renderUI({ 		pickerInput(inputId = "Xaxis_scatter", label = "X axis", choices = input$multimap_variable, multiple=FALSE, selected=input$multimap_variable[1], width="300px") })
+	output$choice_Y_scatter<- renderUI({ 		pickerInput(inputId = "Yaxis_scatter", label = "Y axis", choices = input$multimap_variable, multiple=FALSE, selected=input$multimap_variable[2], width="300px") })
+
+
+
+  	output$scatter=renderPlotly({ 
 
   		# Do it only if the user is in the 'compare' tab
   		req(input$section==3)
+		
+		# Get appropriate datasets (may be the user wants to compare its data with abdel data)
+		mydata1=return_appropriate_dataset( input$Xaxis_scatter, input$map_geo_unit, input$map_geo_transfo,  user_data()) 
+		mydata2=return_appropriate_dataset( input$Yaxis_scatter, input$map_geo_unit, input$map_geo_transfo,  user_data()) 
 
-  		print("do the scatter")
+		# if not the same, I merge
+		if(!identical(mydata1,mydata2)){
+			print("pas pareil")
+			tmp=cbind(mydata1@data, mydata2@data)
+		}else{
+			tmp=mydata1@data
+		}
 
-		mydata=return_appropriate_dataset( input$multimap_variable[1], input$map_geo_unit, input$map_geo_transfo,  user_data())
-  
+  		# Recover the 2 chosen variables
+  		tmp$varx=tmp[ , input$Xaxis_scatter]
+  		tmp$vary=tmp[ , input$Yaxis_scatter]
+
   		# Prepare text
-		mydata@data$text=paste("PC1: ", round(mydata@data$PC1, 2), sep="")
-
-		# filter column
+		tmp$text=paste( tmp$geo_label, "\n", input$Xaxis_scatter, ": ", round(tmp$varx, 2), "\n", input$Yaxis_scatter, ": ", round(tmp$vary, 2), "\n", "Number of individual:", tmp$nb_people, sep="")
 
   		# Make the plot
-		p=ggplot(data=mydata@data, aes(x=PC1, y=PC2, color=PC1, text=text)) + 
+		p=ggplot(data=tmp, aes(x=varx, y=vary, color=nb_people, text=text, size=nb_people)) + 
   			geom_point() +
   			coord_equal() +
   			scale_color_viridis() +
   			theme_bw() +
-  			theme(legend.position = "none") #+
-  			#ggtitle(paste("Correlation: ", round(cor(tmp@data$PC1, tmp@data$PC2),2) , sep=""))
+  			theme(legend.position = "none") +
+  			xlab(input$Xaxis_scatter) + 
+  			ylab(input$Yaxis_scatter) +
+  			ggtitle(paste("Correlation: ", round(cor(tmp$varx, tmp$varx, use="complete.obs"),2) , sep=""))
 
 
   		ggplotly(p, tooltip="text", )
@@ -325,29 +411,6 @@ shinyServer(function(input, output) {
 	})
 
 
-  #output$scatter_matrix=renderPlotly({ 
-		
-	#p=ggpairs(tmp@data[,c(1:2)]) +
-  		#t#heme_void()
-
- 		
-
- 	#ggplotly(p, tooltip="text", )
-
-
-	#})
-
-
-	#output$scatter=renderPlot({ 
-
-	#	mydata=mydata()
-#
-#		mydata@data %>% 
-#	  		select(input$multimap_variable) %>%
-#	  		plot( pch=20 , cex=1.5 , col=rgb(0.5, 0.8, 0.9, 0.7))
-
-
-#	})
 
 
 
@@ -422,7 +485,6 @@ shinyServer(function(input, output) {
 			} else {
 				output$error_message<- renderUI({ helpText(NULL) })
 				return(userdata)
-
 			}
 		}
 
@@ -453,7 +515,8 @@ shinyServer(function(input, output) {
 		if(is.null( user_data() )){
 			helpText("pas de user data") 
 		}else{
-			helpText("Computation done. You're ready to explore your data.") 	
+			helpText("Computation done. You're ready to explore your data.") 
+			sendSweetAlert( session = session, title = "Done !!", text = "Your variable are ready to be visualized!", type = "success" )	
 		}
 	})
 

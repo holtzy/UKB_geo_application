@@ -160,5 +160,11 @@ h3 {
 
 
 
+/* ------------------------------------------------------------*/ 
+/* REMOVE THE 'LEAFLET" WORD BELMOW EACH MAP*/
+.leaflet-container .leaflet-control-attribution, .leaflet-container .leaflet-control-scale {
+    font-size: 0px;
+}
+/* ------------------------------------------------------------*/ 
 
 

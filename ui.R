@@ -28,7 +28,7 @@ shinyUI(fluidPage(
 	),
 	fluidRow( align="center",
 		br(),
-		column(4, offset=4, align="center", radioGroupButtons( "section",label = NULL, choices=c("Methods"=2, "Explore"=1, "Compare"=3, "Add your data"=4), selected=1 )),
+		column(4, offset=4, align="center", radioGroupButtons( "section",label = NULL, choices=c("Methods"=2, "Explore"=1, "Compare"=3, "Load your data"=4), selected=1 )),
 	
 		# Customization button
 		column(2, offset=0, align="left", 
@@ -38,7 +38,7 @@ shinyUI(fluidPage(
 				h2("Geographical Unit"),
 				hr(),
 				h5("We propose to work at 3 different geographical scales. This will divide UK in 414, 1k and 10k units respectively. You can also choose your resolution. Better resolution allows to zoom on the map, but a waiting time will be necessary. Click the + button for this option."),
-				selectInput(inputId = "map_geo_unit", label = "", choices = c("Region (large)"=1, "Region (Small)"=2, "Hexagones"=3) ),
+				selectInput(inputId = "map_geo_unit", label = "", choices = c("Region"=1, "Hexagones"=3) ),
 				br(), br(),
 				
 				h2("Transformation"),
@@ -97,7 +97,8 @@ shinyUI(fluidPage(
 		column(6, align="center",
 			leafletOutput("main_map", height="800px", width="100%") %>% withSpinner( color= "#2ecc71"),
 			br(), br(),
-			h3(tags$u(tags$b("Figure 1")),": Geographical distribution in the UK.")
+			uiOutput("title_map1"),
+			uiOutput("moran_map1")
 		),
 		
 
@@ -109,7 +110,10 @@ shinyUI(fluidPage(
 			h2("Variable"),
 			hr(),
 			h5("We propose to represent the geographical distribution of 126 variables. These veriable are split in several groups: Principal Components (PCs), Polygenic Risk Scores (PRS). To understand how these variable have been computed, visit the method section."),
-			uiOutput("map_variable_button")
+			uiOutput("map_variable_button"),
+			br(),
+			h5("Clusterised variable?"),
+			dropdownButton( circle = TRUE, size= "xs", width="600px", right=TRUE, up=TRUE, plotOutput("barplot", height="780px"))
 		)
 	),
 	br(), br(),
@@ -145,40 +149,40 @@ shinyUI(fluidPage(
 
 		# If 2 maps
 		conditionalPanel( "input.multimap_variable.length==2" ,
-			fluidRow(
-				column(4, offset=2, textOutput("title1"), leafletOutput("compar_map1a", height="900px") %>% withSpinner( color= "#2ecc71")),
-				column(4, leafletOutput("compar_map2a", height="900px") %>% withSpinner( color= "#2ecc71"))
+			fluidRow(align="center", 
+				column(4, offset=2, leafletOutput("compar_map1a", height=multimap_height) %>% withSpinner( color= "#2ecc71"), uiOutput("title_multimap1a") ),
+				column(4, leafletOutput("compar_map2a", height=multimap_height) %>% withSpinner( color= "#2ecc71"), uiOutput("title_multimap2a") )
 			)
 		),
 
 
 		# If 3 maps
 		conditionalPanel( "input.multimap_variable.length==3" ,
-			fluidRow(column(10, offset=1,
-				column(4, leafletOutput("compar_map1b", height="900px") %>% withSpinner( color= "#2ecc71")),
-				column(4, leafletOutput("compar_map2b", height="900px") %>% withSpinner( color= "#2ecc71")),
-				column(4, leafletOutput("compar_map3b", height="900px") %>% withSpinner( color= "#2ecc71"))
+			fluidRow(align="center", column(10, offset=1,
+				column(4, leafletOutput("compar_map1b", height=multimap_height) %>% withSpinner( color= "#2ecc71"), uiOutput("title_multimap1b") ),
+				column(4, leafletOutput("compar_map2b", height=multimap_height) %>% withSpinner( color= "#2ecc71"), uiOutput("title_multimap2b") ),
+				column(4, leafletOutput("compar_map3b", height=multimap_height) %>% withSpinner( color= "#2ecc71"), uiOutput("title_multimap3b") )
 			))
 		),
 
 		# If 4 maps
 		conditionalPanel( "input.multimap_variable.length==4" ,
-			fluidRow(column(10, offset=1,
-				column(3, leafletOutput("compar_map1c", height="900px") %>% withSpinner( color= "#2ecc71")),
-				column(3, leafletOutput("compar_map2c", height="900px") %>% withSpinner( color= "#2ecc71")),
-				column(3, leafletOutput("compar_map3c", height="900px") %>% withSpinner( color= "#2ecc71")),
-				column(3, leafletOutput("compar_map4c", height="900px") %>% withSpinner( color= "#2ecc71"))
-			))
+			fluidRow(align="center",
+				column(3, leafletOutput("compar_map1c", height=multimap_height) %>% withSpinner( color= "#2ecc71"), uiOutput("title_multimap1c") ),
+				column(3, leafletOutput("compar_map2c", height=multimap_height) %>% withSpinner( color= "#2ecc71"), uiOutput("title_multimap2c") ),
+				column(3, leafletOutput("compar_map3c", height=multimap_height) %>% withSpinner( color= "#2ecc71"), uiOutput("title_multimap3c") ),
+				column(3, leafletOutput("compar_map4c", height=multimap_height) %>% withSpinner( color= "#2ecc71"), uiOutput("title_multimap4c") )
+			)
 		),
 
 		# If 5 maps
 		conditionalPanel( "input.multimap_variable.length==5" ,
-			fluidRow(column(12, offset=1,
-				column(2, leafletOutput("compar_map1d", height="900px") %>% withSpinner( color= "#2ecc71")),
-				column(2, leafletOutput("compar_map2d", height="900px") %>% withSpinner( color= "#2ecc71")),
-				column(2, leafletOutput("compar_map3d", height="900px") %>% withSpinner( color= "#2ecc71")),
-				column(2, leafletOutput("compar_map4d", height="900px") %>% withSpinner( color= "#2ecc71")),
-				column(2, leafletOutput("compar_map5d", height="900px") %>% withSpinner( color= "#2ecc71"))
+			fluidRow(align="center", column(12, offset=1,
+				column(2, leafletOutput("compar_map1d", height=multimap_height) %>% withSpinner( color= "#2ecc71"), uiOutput("title_multimap1d") ),
+				column(2, leafletOutput("compar_map2d", height=multimap_height) %>% withSpinner( color= "#2ecc71"), uiOutput("title_multimap2d") ),
+				column(2, leafletOutput("compar_map3d", height=multimap_height) %>% withSpinner( color= "#2ecc71"), uiOutput("title_multimap3d") ),
+				column(2, leafletOutput("compar_map4d", height=multimap_height) %>% withSpinner( color= "#2ecc71"), uiOutput("title_multimap4d") ),
+				column(2, leafletOutput("compar_map5d", height=multimap_height) %>% withSpinner( color= "#2ecc71"), uiOutput("title_multimap5d") )
 			))
 		),
 
@@ -192,7 +196,10 @@ shinyUI(fluidPage(
 		),
 
 		# Legend
-		fluidRow(align="center", h3(tags$u(tags$b("Figure 2")),": Geographical distribution of xx, xx and xx in the UK.")),
+		fluidRow(align="center", h3(tags$u(tags$b("Figure 2")),": Geographical distribution of several variables across the UK.")),
+
+
+
 
 
 
@@ -204,9 +211,17 @@ shinyUI(fluidPage(
 				h5("To complete this geographical comparison, here are a couple of scatterplots showing the relationship between each pair of variables you have selected:")
 			)
 		),
+		fluidRow(
+			column(6, align="right", uiOutput("choice_X_scatter")),
+			column(6, align="left", uiOutput("choice_Y_scatter"))
+		),
 		br(),
-		fluidRow(align="center", plotlyOutput("scatter", height="700px", width="700px") %>% withSpinner( color= "#2ecc71"), 
-		fluidRow(align="center", h3(tags$u(tags$b("Figure 3")),": Pairwise relationship of your selected variables")),
+		fluidRow(align="center", column(6, offset=3, plotlyOutput("scatter", height="700px", width="700px") %>% withSpinner( color= "#2ecc71"))), 
+		fluidRow(align="center", column(4, offset=4, h3(tags$u(tags$b("Figure 3")),": Scatterplot showing the relationship between 2 variables. Each point represent a region of the map"))),
+
+
+
+
 
 
 
@@ -225,16 +240,10 @@ shinyUI(fluidPage(
 			column(1, br(),br(),br(),br(),br(),br(),br(), radioGroupButtons(inputId = "varY_heatmap", label = "", choices = c("PRS (no correction)" = 1, "UKB PCs" = 2, "PRS corrected by UKB"=3, "1000 genome PCs" = 4, "PRS corrected by 1000g"=5  ), selected=2, direction = "vertical") )
 		), 
 		fluidRow(align="center", column(4, offset=4, h3(tags$u(tags$b("Figure 4")),": Heatmap displaying the Pearson correlation coefficient between variable. Pick up the group of traits of the Y axis using the right buttons (and use bottom buttons for the X axis)."))),
-		radioGroupButtons(inputId = "varX_heatmap", label = "", choices = c("PRS (no correction)" = 1, "UKB PCs" = 2, "PRS corrected by UKB"=3, "1000 genome PCs" = 4, "PRS corrected by 1000g"=5  ), selected=2)
+		fluidRow(align="center", radioGroupButtons(inputId = "varX_heatmap", label = "", choices = c("PRS (no correction)" = 1, "UKB PCs" = 2, "PRS corrected by UKB"=3, "1000 genome PCs" = 4, "PRS corrected by 1000g"=5  ), selected=2))
 
 
-		)
-
-
-
-
-
-
+	
 
 	),
 
@@ -359,6 +368,7 @@ shinyUI(fluidPage(
 			br(), 
 			actionButton("button_computation", "Run analysis"),
 			uiOutput("info_message") %>% withSpinner( color= "#2ecc71"),
+			useSweetAlert(),
 			br()			
 		))
 
