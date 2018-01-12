@@ -267,48 +267,50 @@ shinyUI(fluidPage(
 	conditionalPanel("input.section == 2",
 
 		fluidRow(column(7, offset=2, align="left",
-			br(), br(), br(), br(),br(), 
+			br(), br(), br(),
 			h2("Material"),
 			hr()
 		)),
 		fluidRow(column(6, offset=3,
-			h5("Lorem Ipsum blablba Abdel you need to send me text to explain your work here. Lorem Ipsum blablba Abdel you need to send me text to explain your work here. Lorem Ipsum blablba Abdel you need to send me text to explain your work here. Lorem Ipsum blablba Abdel you need to send me text to explain your work here. Lorem Ipsum blablba Abdel you need to send me text to explain your work here.")
+			h5("What is the UKB? How many individual? How have they been selected / filtered? How many variable. What is the meaning of the variable. \n\nIn this part we explain how we got the individual features matrix")
 		)),
 		br(),br(),
 
 
 
 		fluidRow(column(7, offset=2, align="left",
-			br(), br(), br(), br(),br(), 
+			br(), br(), br(),
 			h2("PCs and PRS computation"),
 			hr()
 		)),
 		fluidRow(column(6, offset=3,
-			h5("Lorem Ipsum blablba Abdel you need to send me text to explain your work here. Lorem Ipsum blablba Abdel you need to send me text to explain your work here. Lorem Ipsum blablba Abdel you need to send me text to explain your work here. Lorem Ipsum blablba Abdel you need to send me text to explain your work here. Lorem Ipsum blablba Abdel you need to send me text to explain your work here.")
+			h5("What is a PCs. Why do we have several PC1. How did we calculate PRS, with what tool and what effect in the model.")
 		)),
 		br(),br(),
 
 
 
 		fluidRow(column(7, offset=2, align="left",
-			br(), br(), br(), br(),br(), 
+			br(), br(), br(),
 			h2("Visualization"),
 			hr()
 		)),
 		fluidRow(column(6, offset=3,
-			h5("Lorem Ipsum blablba Abdel you need to send me text to explain your work here. Lorem Ipsum blablba Abdel you need to send me text to explain your work here. Lorem Ipsum blablba Abdel you need to send me text to explain your work here. Lorem Ipsum blablba Abdel you need to send me text to explain your work here. Lorem Ipsum blablba Abdel you need to send me text to explain your work here.")
+			h5("Great Britain territory is first divided by region (source). To avoid the biais done by this human territory division, we also proposed to split the territory in hexagones with identical area ", strong(a("(source)", style="color:lightblue", href="https://xinye1.github.io/projects/brexit-cartogram-leaflet/")), " . In both case, we computed the average value of each variable per region."),
+			h5("A cartogram representation is also proposed, where the area of each region is transformed proportionaly to the  number of individuals it contains. This has been done using the rubber sheet distortion algorithm ",strong(a("(Dougenik et al. 1985)", style="color:lightblue", href="https://xinye1.github.io/projects/brexit-cartogram-leaflet/")), " implemented in the ", strong(a("cartogram R library", style="color:lightblue", href="https://github.com/sjewo/cartogram"))),
+			h5("To evaluate the spatial autocorrelation of a variable, we computed it's ", strong(a("Moran's I value", style="color:lightblue", href="http://www.jstor.org/stable/2532039?seq=2#page_scan_tab_contents"))," using the ", strong(a("spdep", style="color:lightblue", href="https://cran.r-project.org/web/packages/spdep/spdep.pdf")), " library")
 		)),
 		br(),br(),
 
 
 
 		fluidRow(column(7, offset=2, align="left",
-			br(), br(), br(), br(),br(),
+			br(), br(), br(),
 			h2("Reproducibility"),
 			hr()
 		)),
 		fluidRow(column(6, offset=3,
-			h5("All the result of this study have been obtained using the R programming language. Map are done using the leaflet library developped by Rstudio. All the code are available on Github, and further explanation are available in our publication. Raw data are provided using the button below. Feel free to contact us for further information.")
+			h5("All the result of this study have been obtained using the", strong(a("R programming", style="color:lightblue", href="https://www.r-project.org/about.html")), "language. Maps are done using the ",strong(a("leaflet library", style="color:lightblue", href="https://rstudio.github.io/leaflet/")) ,"developped by", strong(a("Rstudio", style="color:lightblue", href="https://www.rstudio.com")),". All the code are available on ",  strong(a("Github", style="color:lightblue", href="https://github.com/holtzy/UKB_geo_application"))," and further explanation are available in our publication. Raw data are provided using the button below. Feel free to contact us for further information.")
 		)),
 		br(),br(),
 		fluidRow(align="center", 

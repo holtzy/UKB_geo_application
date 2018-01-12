@@ -2,7 +2,8 @@ name: UKB_geo
 title:
 account: holtzyan
 server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
 appId: 249744
-bundleId: 1147411
+bundleId: 1172965
 url: https://holtzyan.shinyapps.io/UKB_geo/
-when: 1513927488.42543
+when: 1515735714.72189
