@@ -9,28 +9,17 @@ library(dplyr)
 library(tibble)
 library(ggplot2)
 library(tidyr)
-library("shinyWidgets")
+library(shinyWidgets)
 library(RColorBrewer)		# awesome color palettes
 library(d3heatmap)			# for heatmaps
 library(plotly)
 library(DT)
-library(networkD3)			# Classification tree of disease
-library(packcircles)		# for calculating packcircles
-library(gridExtra)
 library(viridis)
-library(grid)
-library(ggiraph)			# To animate the ggplot2 bubble chart
-
 library(shinycssloaders)	# Spinner if plot takes time to load
-
 library(sp)
 library(rgdal)
 library(rgeos)
-
 library(leaflet)
-
-library(GGally)				# For the scatterplot matrix
-
 library(d3heatmap)
 
 
