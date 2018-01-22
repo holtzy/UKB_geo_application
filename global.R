@@ -72,6 +72,7 @@ source("FUNCTIONS/4_Spatial_Autocorrelation.R")
 # 4- A FUNCTION THAT RETURN THE APPROPRIATE DATASET TO FIT USER NEEDS
 user_data=NULL
 
+# A function that return the good dataset
 return_appropriate_dataset = function( isNew, map_geo_unit, map_geo_transfo, user_data){
 
 	# Case number one: we show our data:
@@ -90,6 +91,23 @@ return_appropriate_dataset = function( isNew, map_geo_unit, map_geo_transfo, use
 
 }
 
+
+# A function that return the good color palette:
+return_color_palette=function(type, vector, palette, nb_quantile){
+		
+	if(type=="Bin"){
+		mybins=seq( min(vector, na.rm=TRUE), max(vector, na.rm=TRUE), (max(vector, na.rm=TRUE)-min(vector, na.rm=TRUE))/nb_quantile) %>% round(40)
+		mybins=c(-Inf, mybins, Inf)
+		mypalette = colorBin( palette=palette, domain=vector, na.color="transparent", bins=mybins)
+	}
+	if(type=="Quantile"){
+		mypalette = colorQuantile( palette=palette, domain=vector, na.color="transparent", n=7)
+	}
+	if(type=="Numerical"){
+		mypalette = colorNumeric( palette=palette, domain=vector, na.color="transparent")
+	}
+	return(mypalette)
+}
 
 
 

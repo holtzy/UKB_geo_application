@@ -49,17 +49,7 @@ shinyServer(function(input, output, session) {
 	# What is the color palette we want to use?
 	mypalette=reactive({
 		req(input$map_variable != "")
-		vector=myvector()
-		if(input$type_scale=="Bin"){
-			mybins=seq( min(vector, na.rm=TRUE), max(vector, na.rm=TRUE), (max(vector, na.rm=TRUE)-min(vector, na.rm=TRUE))/input$slider_quantile) %>% round(2)
-			mypalette = colorBin( palette=input$choice_palette, domain=vector, na.color="transparent", bins=mybins)
-		}
-		if(input$type_scale=="Quantile"){
-			mypalette = colorQuantile( palette=input$choice_palette, domain=vector, na.color="transparent", n=7)
-		}
-		if(input$type_scale=="Numerical"){
-			mypalette = colorNumeric( palette=input$choice_palette, domain=vector, na.color="transparent")
-		}
+		mypalette=return_color_palette( input$type_scale, myvector(), input$choice_palette, input$slider_quantile  )
 		return(mypalette)
 	})
 
@@ -73,6 +63,13 @@ shinyServer(function(input, output, session) {
 
 	# Now I have a set of reactive value that I can use on my map.
 	# If the user change only the number of bins in the palette for example, only the implicated reactives will be recalculated!
+
+
+
+
+
+
+
 
 
 
@@ -98,14 +95,15 @@ shinyServer(function(input, output, session) {
 
 
 	# Second I do a observer that will change the map using leaflet proxy.
-	observeEvent( { input$map_variable ; input$map_geo_transfo ; input$map_geo_unit ; input$type_scale ; input$choice_palette},  {
+	observeEvent( { input$map_variable ; input$map_geo_transfo ; input$map_geo_unit ; input$type_scale ; input$choice_palette ; input$slider_quantile},  {
 		
 		# This chunck must be run only if the map_variable has been computed by shiny. Indeed, the object map_geo_transfo and map_geo_unit are created before, so I need to make this check
 		req(input$map_variable != "")
+		req(input$section==1)
+		print("modify main plot")
 		
 		# I get back all the users choice:
 		mydata=mydata()
-		myzoom=myzoom()
 		mystroke=mystroke()
 		variable=input$map_variable
 		mytext=mytext()
@@ -178,240 +176,191 @@ shinyServer(function(input, output, session) {
 
 
 
+
+
   # ------------------------------------------------------------------------------
   # COMPARISON PLOTS (Max=5 plots allowed)
   # ------------------------------------------------------------------------------
 		
+	# ------ BACKGROUND MAP -------- #
+	output$compar_map1 <- output$compar_map2 <- output$compar_map3 <- output$compar_map4 <- renderLeaflet({
+		
+		#req(input$section==3)
+		
+		# I will remake the map from the beginning if the user change involves change in shape 
+		mydata=mytype()
+		myzoom=myzoom()
+				  
+		# Final Map
+		leaflet(mydata, options = leafletOptions(zoomControl = FALSE, minZoom = myzoom, maxZoom = 8)) %>% 
+		  	addPolygons( data=mydata , stroke=FALSE, fillColor="transparent", color="transparent" )
+	})
 
-  	# ----- REACTIVE ZOOM AND STROKE VALUE
-  	myzoom=reactive({
-  		if( input$map_geo_unit!=3 ){ ifelse(length(input$multimap_variable)==5, return(5.2), return(5.7)) }else{ifelse(length(input$multimap_variable)==5, return(5.6), return(6.2))}
-  	})
-    mystroke=reactive({
-  		if( input$map_geo_unit!=3 ){ return(1) }else{return(3)}
+
+
+
+	# ------ MAP 1 -------- #
+		
+	# And modify this map with leaflet proxy
+	observeEvent( { input$section ; input$multimap_variable1 ; input$map_geo_transfo ; input$map_geo_unit ; input$type_scale ; input$choice_palette ; input$slider_quantile},  {
+		
+		# This chunck must be run only if the map_variable has been computed by shiny. Indeed, the object map_geo_transfo and map_geo_unit are created before, so I need to make this check
+		req(input$multimap_variable1 != "")
+		req(input$section==3)
+		print("modify multiplot1")
+
+		# I get back all the users choice:
+		isNew=ifelse(input$multimap_variable1 %in% all, "original", "new")
+		mydata=return_appropriate_dataset( isNew, input$map_geo_unit, input$map_geo_transfo, user_data() )
+		variable=input$multimap_variable1
+		myvector=as.numeric(as.character( mydata@data[ , variable]) ) 
+		mytext=paste("Region: ", mydata@data$geo_label,"<br/>", "Number of people: ", mydata@data$nb_people, "<br/>", "Value: ", round(myvector,2), sep="") %>% lapply(htmltools::HTML)
+
+		mypalette=return_color_palette( input$type_scale, myvector, input$choice_palette, input$slider_quantile  )
+
+		mystroke=mystroke()
+
+    	## plot the subsetted data
+    	leafletProxy("compar_map1") %>%
+      		clearShapes() %>%
+		  	addPolygons( 
+		  		data=mydata, 
+		    	fillColor = ~mypalette(myvector), stroke=TRUE, fillOpacity = 1, color=~mypalette(myvector), weight=mystroke,
+   				highlight = highlightOptions( weight = 5, color = ~mypalette(myvector), dashArray = "", fillOpacity = 0.3, bringToFront = TRUE),
+    			label = mytext,
+    			labelOptions = labelOptions( style = list("font-weight" = "normal", padding = "3px 8px"), textsize = "13px", direction = "auto")
+  			) 
   	})	
 
 
 
 
 
-	# ------ PLOT1
-	output$compar_map1a <- output$compar_map1b <- output$compar_map1c <- output$compar_map1d <- renderLeaflet({
+	# ------ MAP 2 -------- #
+		
+	# And modify this map with leaflet proxy
+	observeEvent( { input$section ; input$multimap_variable2 ; input$map_geo_transfo ; input$map_geo_unit ; input$type_scale ; input$choice_palette ; input$slider_quantile},  {
+		
+		# This chunck must be run only if the map_variable has been computed by shiny. Indeed, the object map_geo_transfo and map_geo_unit are created before, so I need to make this check
+		req(input$multimap_variable2 != "")
+		req(input$section==3)
+		print("modify multiplot2")
 
-		# I need to have enough chosen value
-		req( length(input$multimap_variable)>=1 )
+		# I get back all the users choice:
+		isNew=ifelse(input$multimap_variable2 %in% all, "original", "new")
+		mydata=return_appropriate_dataset( isNew, input$map_geo_unit, input$map_geo_transfo, user_data() )
+		variable=input$multimap_variable2
+		myvector=as.numeric(as.character( mydata@data[ , variable]) ) 
+		mytext=paste("Region: ", mydata@data$geo_label,"<br/>", "Number of people: ", mydata@data$nb_people, "<br/>", "Value: ", round(myvector,2), sep="") %>% lapply(htmltools::HTML)
 
-		mydata=return_appropriate_dataset( input$multimap_variable[1], input$map_geo_unit, input$map_geo_transfo,  user_data())
-		myzoom=myzoom()
+		mypalette=return_color_palette( input$type_scale, myvector, input$choice_palette, input$slider_quantile  )
 		mystroke=mystroke()
 
-		# Get the variable choose by user:
-		variable=input$multimap_variable[1]
-		vector=as.numeric(as.character(mydata@data[ , variable]))
-
-		# Create a color palette with handmade bins.
-		mybins=seq( min(vector, na.rm=TRUE), max(vector, na.rm=TRUE), (max(vector, na.rm=TRUE)-min(vector, na.rm=TRUE))/input$slider_quantile) %>% round(2)
-		mypalette = colorBin( palette=input$choice_palette, domain=vector, na.color="transparent", bins=mybins)
-
-		# text
-		mytext=paste("Region: ", mydata@data$geo_label,"<br/>", "Number of people: ", mydata@data$nb_people, "<br/>", "Value: ", round(vector,2), sep="") %>%
-		  lapply(htmltools::HTML)
-
-  		print("map1 done") 
-		  
-		# Final Map
-		leaflet(mydata, options = leafletOptions(zoomControl = FALSE, minZoom = myzoom, maxZoom = 8)) %>% 
+    	## plot the subsetted data
+    	leafletProxy("compar_map2") %>%
+      		clearShapes() %>%
 		  	addPolygons( 
-		    	fillColor = ~mypalette(vector), stroke=TRUE, fillOpacity = 1, color=~mypalette(vector), weight=mystroke,
-   				highlight = highlightOptions( weight = 5, color = ~mypalette(vector), dashArray = "", fillOpacity = 0.3, bringToFront = TRUE),
-    			label = mytext,
-    			labelOptions = labelOptions( style = list("font-weight" = "normal", padding = "3px 8px"), textsize = "13px", direction = "auto")
-  			)
-
-
-	})
-
-
-
-
-
-
-	# ------ PLOT2
-	output$compar_map2a <- output$compar_map2b <- output$compar_map2c <- output$compar_map2d <- renderLeaflet({
-
-		# I need to have enough chosen value
-		req( length(input$multimap_variable)>=2 )
-
-		mydata=return_appropriate_dataset( input$multimap_variable[2], input$map_geo_unit, input$map_geo_transfo, user_data())
-		myzoom=myzoom()
-		mystroke=mystroke()
-
-		# Get the variable choose by user:
-		variable=input$multimap_variable[2]
-		vector=as.numeric(as.character(mydata@data[ , variable]))
-
-		# Create a color palette with handmade bins.
-		mybins=seq( min(vector, na.rm=TRUE), max(vector, na.rm=TRUE), (max(vector, na.rm=TRUE)-min(vector, na.rm=TRUE))/input$slider_quantile) %>% round(2)
-		mypalette = colorBin( palette=input$choice_palette, domain=vector, na.color="transparent", bins=mybins)
-
-		# text
-		mytext=paste("Region: ", mydata@data$geo_label,"<br/>", "Number of people: ", mydata@data$nb_people, "<br/>", "Value: ", round(vector,2), sep="") %>%
-		  lapply(htmltools::HTML)
-		  
-  		print("map2 done") 
-
-		# Final Map
-		leaflet(mydata, options = leafletOptions(zoomControl = FALSE, minZoom = myzoom, maxZoom = 8)) %>% 
-		  	addPolygons( 
-		    	fillColor = ~mypalette(vector), stroke=TRUE, fillOpacity = 1, color=~mypalette(vector), weight=mystroke,
-   				highlight = highlightOptions( weight = 5, color = ~mypalette(vector), dashArray = "", fillOpacity = 0.3, bringToFront = TRUE),
+		  		data=mydata, 
+		    	fillColor = ~mypalette(myvector), stroke=TRUE, fillOpacity = 1, color=~mypalette(myvector), weight=mystroke,
+   				highlight = highlightOptions( weight = 5, color = ~mypalette(myvector), dashArray = "", fillOpacity = 0.3, bringToFront = TRUE),
     			label = mytext,
     			labelOptions = labelOptions( style = list("font-weight" = "normal", padding = "3px 8px"), textsize = "13px", direction = "auto")
   			) 
+  	})	
 
 
-	})
 
+	# ------ MAP 3 -------- #
+		
+	# And modify this map with leaflet proxy
+	observeEvent( { input$section ; input$multimap_variable3 ; input$map_geo_transfo ; input$map_geo_unit ; input$type_scale ; input$choice_palette ; input$slider_quantile},  {
+		
+		# This chunck must be run only if the map_variable has been computed by shiny. Indeed, the object map_geo_transfo and map_geo_unit are created before, so I need to make this check
+		req(input$multimap_variable3 != "")
+		req(input$section==3)
+		print("modify multiplot3")
 
-	# ------ PLOT3
-	output$compar_map3b <- output$compar_map3c <- output$compar_map3d <- renderLeaflet({
+		# I get back all the users choice:
+		isNew=ifelse(input$multimap_variable3 %in% all, "original", "new")
+		mydata=return_appropriate_dataset( isNew, input$map_geo_unit, input$map_geo_transfo, user_data() )
+		variable=input$multimap_variable3
+		myvector=as.numeric(as.character( mydata@data[ , variable]) ) 
+		mytext=paste("Region: ", mydata@data$geo_label,"<br/>", "Number of people: ", mydata@data$nb_people, "<br/>", "Value: ", round(myvector,2), sep="") %>% lapply(htmltools::HTML)
 
-		# I need to have enough chosen value
-		req( length(input$multimap_variable)>=3 )
-
-		mydata=return_appropriate_dataset( input$multimap_variable[3], input$map_geo_unit, input$map_geo_transfo,  user_data())
-		myzoom=myzoom()
+		mypalette=return_color_palette( input$type_scale, myvector, input$choice_palette, input$slider_quantile  )
 		mystroke=mystroke()
 
-		# Get the variable choose by user:
-		variable=input$multimap_variable[3]
-		vector=as.numeric(as.character(mydata@data[ , variable]))
-
-		# Create a color palette with handmade bins.
-		mybins=seq( min(vector, na.rm=TRUE), max(vector, na.rm=TRUE), (max(vector, na.rm=TRUE)-min(vector, na.rm=TRUE))/input$slider_quantile) %>% round(2)
-		mypalette = colorBin( palette=input$choice_palette, domain=vector, na.color="transparent", bins=mybins)
-
-		# text
-		mytext=paste("Region: ", mydata@data$geo_label,"<br/>", "Number of people: ", mydata@data$nb_people, "<br/>", "Value: ", round(vector,2), sep="") %>%
-		  lapply(htmltools::HTML)
-		  
-  		print("map3 done") 
-
-		# Final Map
-		leaflet(mydata, options = leafletOptions(zoomControl = FALSE, minZoom = myzoom, maxZoom = 8)) %>% 
+    	## plot the subsetted data
+    	leafletProxy("compar_map3") %>%
+      		clearShapes() %>%
 		  	addPolygons( 
-		    	fillColor = ~mypalette(vector), stroke=TRUE, fillOpacity = 1, color=~mypalette(vector), weight=mystroke,
-   				highlight = highlightOptions( weight = 5, color = ~mypalette(vector), dashArray = "", fillOpacity = 0.3, bringToFront = TRUE),
+		  		data=mydata, 
+		    	fillColor = ~mypalette(myvector), stroke=TRUE, fillOpacity = 1, color=~mypalette(myvector), weight=mystroke,
+   				highlight = highlightOptions( weight = 5, color = ~mypalette(myvector), dashArray = "", fillOpacity = 0.3, bringToFront = TRUE),
     			label = mytext,
     			labelOptions = labelOptions( style = list("font-weight" = "normal", padding = "3px 8px"), textsize = "13px", direction = "auto")
   			) 
+  	})	
 
 
-	})
+	# ------ MAP 4 -------- #
+		
+	# And modify this map with leaflet proxy
+	observeEvent( { input$section ; input$multimap_variable4 ; input$map_geo_transfo ; input$map_geo_unit ; input$type_scale ; input$choice_palette ; input$slider_quantile},  {
+		
+		# This chunck must be run only if the map_variable has been computed by shiny. Indeed, the object map_geo_transfo and map_geo_unit are created before, so I need to make this check
+		req(input$multimap_variable4 != "")
+		req(input$section==3)
+		print("modify multiplot4")
 
+		# I get back all the users choice:
+		isNew=ifelse(input$multimap_variable4 %in% all, "original", "new")
+		mydata=return_appropriate_dataset( isNew, input$map_geo_unit, input$map_geo_transfo, user_data() )
+		variable=input$multimap_variable4
+		myvector=as.numeric(as.character( mydata@data[ , variable]) ) 
+		mytext=paste("Region: ", mydata@data$geo_label,"<br/>", "Number of people: ", mydata@data$nb_people, "<br/>", "Value: ", round(myvector,2), sep="") %>% lapply(htmltools::HTML)
 
-	# ------ PLOT4
-	output$compar_map4c <- output$compar_map4d <- renderLeaflet({
-
-		# I need to have enough chosen value
-		req( length(input$multimap_variable)>=4 )
-
-		mydata=return_appropriate_dataset( input$multimap_variable[4], input$map_geo_unit, input$map_geo_transfo,  user_data())
-		myzoom=myzoom()
+		mypalette=return_color_palette( input$type_scale, myvector, input$choice_palette, input$slider_quantile  )
 		mystroke=mystroke()
 
-		# Get the variable choose by user:
-		variable=input$multimap_variable[4]
-		vector=as.numeric(as.character(mydata@data[ , variable]))
-
-		# Create a color palette with handmade bins.
-		mybins=seq( min(vector, na.rm=TRUE), max(vector, na.rm=TRUE), (max(vector, na.rm=TRUE)-min(vector, na.rm=TRUE))/input$slider_quantile) %>% round(2)
-		mypalette = colorBin( palette=input$choice_palette, domain=vector, na.color="transparent", bins=mybins)
-
-		# text
-		mytext=paste("Region: ", mydata@data$geo_label,"<br/>", "Number of people: ", mydata@data$nb_people, "<br/>", "Value: ", round(vector,2), sep="") %>%
-		  lapply(htmltools::HTML)
-		  
-  		print("map4 done") 
-
-		# Final Map
-		leaflet(mydata, options = leafletOptions(zoomControl = FALSE, minZoom = myzoom, maxZoom = 8)) %>% 
+    	## plot the subsetted data
+    	leafletProxy("compar_map4") %>%
+      		clearShapes() %>%
 		  	addPolygons( 
-		    	fillColor = ~mypalette(vector), stroke=TRUE, fillOpacity = 1, color=~mypalette(vector), weight=mystroke,
-   				highlight = highlightOptions( weight = 5, color = ~mypalette(vector), dashArray = "", fillOpacity = 0.3, bringToFront = TRUE),
+		  		data=mydata, 
+		    	fillColor = ~mypalette(myvector), stroke=TRUE, fillOpacity = 1, color=~mypalette(myvector), weight=mystroke,
+   				highlight = highlightOptions( weight = 5, color = ~mypalette(myvector), dashArray = "", fillOpacity = 0.3, bringToFront = TRUE),
     			label = mytext,
     			labelOptions = labelOptions( style = list("font-weight" = "normal", padding = "3px 8px"), textsize = "13px", direction = "auto")
   			) 
+  	})	
 
+	
+
+
+	# ------ TITLES -------- #
+
+	output$title_multimap1  <- renderUI({ 
+		my_moran = moran_data[ which(rownames(moran_data)==input$multimap_variable1), "statistic"] %>% round(2)
+		helpText(a(input$multimap_variable1, style="color:#2ecc71; font-size:22px;") , " (", my_moran, ")", sep="")
+	})
+
+	output$title_multimap2  <- renderUI({ 
+		my_moran = moran_data[ which(rownames(moran_data)==input$multimap_variable2), "statistic"] %>% round(2)
+		helpText(a(input$multimap_variable2, style="color:#2ecc71; font-size:22px;") , " (", my_moran, ")", sep="")
+	})
+
+	output$title_multimap3  <- renderUI({ 
+		my_moran = moran_data[ which(rownames(moran_data)==input$multimap_variable3), "statistic"] %>% round(2)
+		helpText(a(input$multimap_variable3, style="color:#2ecc71; font-size:22px;") , " (", my_moran, ")", sep="")
+	})
+
+	output$title_multimap4  <- renderUI({ 
+		my_moran = moran_data[ which(rownames(moran_data)==input$multimap_variable4), "statistic"] %>% round(2)
+		helpText(a(input$multimap_variable4, style="color:#2ecc71; font-size:22px;") , " (", my_moran, ")", sep="")
 	})
 
 
-
-	# ------ PLOT5
-	output$compar_map5d <- renderLeaflet({
-
-		# I need to have enough chosen value
-		req( length(input$multimap_variable)>=5 )
-
-		mydata=return_appropriate_dataset( input$multimap_variable[5], input$map_geo_unit, input$map_geo_transfo, user_data())
-		myzoom=myzoom()
-		mystroke=mystroke()
-
-		# Get the variable choose by user:
-		variable=input$multimap_variable[5]
-		vector=as.numeric(as.character(mydata@data[ , variable]))
-
-		# Create a color palette with handmade bins.
-		mybins=seq( min(vector, na.rm=TRUE), max(vector, na.rm=TRUE), (max(vector, na.rm=TRUE)-min(vector, na.rm=TRUE))/input$slider_quantile) %>% round(2)
-		mypalette = colorBin( palette=input$choice_palette, domain=vector, na.color="transparent", bins=mybins)
-
-		# text
-		mytext=paste("Region: ", mydata@data$geo_label,"<br/>", "Number of people: ", mydata@data$nb_people, "<br/>", "Value: ", round(vector,2), sep="") %>%
-		  lapply(htmltools::HTML)
-		  
-  		print("map5 done") 
-
-		# Final Map
-		leaflet(mydata, options = leafletOptions(zoomControl = FALSE, minZoom = myzoom, maxZoom = 8)) %>% 
-		  	addPolygons( 
-		    	fillColor = ~mypalette(vector), stroke=TRUE, fillOpacity = 1, color=~mypalette(vector), weight=mystroke,
-   				highlight = highlightOptions( weight = 5, color = ~mypalette(vector), dashArray = "", fillOpacity = 0.3, bringToFront = TRUE),
-    			label = mytext,
-    			labelOptions = labelOptions( style = list("font-weight" = "normal", padding = "3px 8px"), textsize = "13px", direction = "auto")
-  			) 
-
-
-	})
-
-
-
-
-	# Titles
-	output$title_multimap1a <- output$title_multimap1b <- output$title_multimap1c <- output$title_multimap1d <- renderUI({ 
-		req( length(input$multimap_variable)>=1 )
-		my_moran = moran_data[ which(rownames(moran_data)==input$multimap_variable[1]),"statistic"] %>% round(2)
-		helpText(a(input$multimap_variable[1], style="color:#2ecc71; font-size:22px;") , " (", my_moran, ")", sep="")
-	})
-	output$title_multimap2a <- output$title_multimap2b <- output$title_multimap2c <- output$title_multimap2d<- renderUI({ 
-		req( length(input$multimap_variable)>=2 )
-		my_moran = moran_data[ which(rownames(moran_data)==input$multimap_variable[2]),"statistic"] %>% round(2)
-		helpText(a(input$multimap_variable[2], style="color:#2ecc71; font-size:22px;") , " (", my_moran, ")", sep="")
-	})
-	output$title_multimap3b <- output$title_multimap3c <- output$title_multimap3d <-  renderUI({ 
-		req( length(input$multimap_variable)>=3 )
-		my_moran = moran_data[ which(rownames(moran_data)==input$multimap_variable[3]),"statistic"] %>% round(2)
-		helpText(a(input$multimap_variable[3], style="color:#2ecc71; font-size:22px;") , " (", my_moran, ")", sep="")
-	})
-	output$title_multimap4c <- output$title_multimap4d <- renderUI({ 
-		req( length(input$multimap_variable)>=4 )
-		my_moran = moran_data[ which(rownames(moran_data)==input$multimap_variable[4]),"statistic"] %>% round(2)
-		helpText(a(input$multimap_variable[4], style="color:#2ecc71; font-size:22px;") , " (", my_moran, ")", sep="")
-	})
-	output$title_multimap5d<- renderUI({ 
-		req( length(input$multimap_variable)>=5 )
-		my_moran = moran_data[ which(rownames(moran_data)==input$multimap_variable[5]),"statistic"] %>% round(2)
-		helpText(a(input$multimap_variable[5], style="color:#2ecc71; font-size:22px;") , " (", my_moran, ")", sep="")
-	})
 
 
 
@@ -426,9 +375,8 @@ shinyServer(function(input, output, session) {
 	
 
 	# 2 input selector for X and Y axis
-	output$choice_X_scatter<- renderUI({ 		pickerInput(inputId = "Xaxis_scatter", label = "X axis", choices = input$multimap_variable, multiple=FALSE, selected=input$multimap_variable[1], width="300px") })
-	output$choice_Y_scatter<- renderUI({ 		pickerInput(inputId = "Yaxis_scatter", label = "Y axis", choices = input$multimap_variable, multiple=FALSE, selected=input$multimap_variable[2], width="300px") })
-
+	output$choice_X_scatter<- renderUI({ 		pickerInput(inputId = "Xaxis_scatter", label = "X axis", choices = list(User_variables=colnames(inFile())[-c(1)], Polygenic_Risk_Score = list_PRS, PC_from_UKB = list_PC_UKB, PRS_corrected_UKB=list_PRS_reg_UKB, PC_from_1000genome = list_PC_1KG, PRS_corrected_1000genome=list_PRS_reg_1KG  ), multiple=FALSE, selected="PC1", width="300px") })
+	output$choice_Y_scatter<- renderUI({ 		pickerInput(inputId = "Yaxis_scatter", label = "Y axis", choices = list(User_variables=colnames(inFile())[-c(1)], Polygenic_Risk_Score = list_PRS, PC_from_UKB = list_PC_UKB, PRS_corrected_UKB=list_PRS_reg_UKB, PC_from_1000genome = list_PC_1KG, PRS_corrected_1000genome=list_PRS_reg_1KG  ), multiple=FALSE, selected="PC2", width="300px") })
 
 
   	output$scatter=renderPlotly({ 
@@ -437,8 +385,8 @@ shinyServer(function(input, output, session) {
   		req(input$section==3)
 		
 		# Get appropriate datasets (may be the user wants to compare its data with abdel data)
-		mydata1=return_appropriate_dataset( input$Xaxis_scatter, input$map_geo_unit, input$map_geo_transfo,  user_data()) 
-		mydata2=return_appropriate_dataset( input$Yaxis_scatter, input$map_geo_unit, input$map_geo_transfo,  user_data()) 
+		mydata1=return_appropriate_dataset( ifelse(input$Xaxis_scatter %in% all, "original", "new"), input$map_geo_unit, input$map_geo_transfo,  user_data()) 
+		mydata2=return_appropriate_dataset( ifelse(input$Yaxis_scatter %in% all, "original", "new"), input$map_geo_unit, input$map_geo_transfo,  user_data()) 
 
 		# if not the same, I merge
 		if(!identical(mydata1,mydata2)){
@@ -491,7 +439,7 @@ shinyServer(function(input, output, session) {
   		req(input$section==3)
 
   		# recover selected data
-		mydata=return_appropriate_dataset( input$multimap_variable[1], input$map_geo_unit, input$map_geo_transfo, user_data())
+		mydata=return_appropriate_dataset( "original", input$map_geo_unit, input$map_geo_transfo, user_data())
 
 		# calculate complete correlation matrix
 		mycor = GBR_region@data %>% select( -geo_label) %>% cor( . , use="complete.obs")
@@ -591,10 +539,18 @@ shinyServer(function(input, output, session) {
 		pickerInput(inputId = "map_variable", label = "", choices = list(User_variables=colnames(inFile())[-c(1)], Polygenic_Risk_Score = list_PRS, PC_from_UKB = list_PC_UKB, PRS_corrected_UKB=list_PRS_reg_UKB, PC_from_1000genome = list_PC_1KG, PRS_corrected_1000genome=list_PRS_reg_1KG  ), selected='PC1')
 	})
 
-	output$multimap_variable_button <- renderUI({
-		pickerInput(inputId = "multimap_variable", label = "", choices = list(User_variables=colnames(inFile())[-c(1)], Polygenic_Risk_Score = list_PRS, PC_from_UKB = list_PC_UKB, PRS_corrected_UKB=list_PRS_reg_UKB, PC_from_1000genome = list_PC_1KG, PRS_corrected_1000genome=list_PRS_reg_1KG  ), multiple=TRUE, selected=c("PC1", "PC2"), width="300px")
+	output$multimap_variable_button1 <- renderUI({
+		pickerInput(inputId = "multimap_variable1", label = "", choices = list(User_variables=colnames(inFile())[-c(1)], Polygenic_Risk_Score = list_PRS, PC_from_UKB = list_PC_UKB, PRS_corrected_UKB=list_PRS_reg_UKB, PC_from_1000genome = list_PC_1KG, PRS_corrected_1000genome=list_PRS_reg_1KG  ), multiple=FALSE, selected="PC1", width="300px")
 	})
-		
+	output$multimap_variable_button2 <- renderUI({
+		pickerInput(inputId = "multimap_variable2", label = "", choices = list(User_variables=colnames(inFile())[-c(1)], Polygenic_Risk_Score = list_PRS, PC_from_UKB = list_PC_UKB, PRS_corrected_UKB=list_PRS_reg_UKB, PC_from_1000genome = list_PC_1KG, PRS_corrected_1000genome=list_PRS_reg_1KG  ), multiple=FALSE, selected="PC2", width="300px")
+	})
+	output$multimap_variable_button3 <- renderUI({
+		pickerInput(inputId = "multimap_variable3", label = "", choices = list(User_variables=colnames(inFile())[-c(1)], Polygenic_Risk_Score = list_PRS, PC_from_UKB = list_PC_UKB, PRS_corrected_UKB=list_PRS_reg_UKB, PC_from_1000genome = list_PC_1KG, PRS_corrected_1000genome=list_PRS_reg_1KG  ), multiple=FALSE, selected="PC3", width="300px")
+	})
+	output$multimap_variable_button4 <- renderUI({
+		pickerInput(inputId = "multimap_variable4", label = "", choices = list(User_variables=colnames(inFile())[-c(1)], Polygenic_Risk_Score = list_PRS, PC_from_UKB = list_PC_UKB, PRS_corrected_UKB=list_PRS_reg_UKB, PC_from_1000genome = list_PC_1KG, PRS_corrected_1000genome=list_PRS_reg_1KG  ), multiple=FALSE, selected="PC4", width="300px")
+	})		
 
 
 

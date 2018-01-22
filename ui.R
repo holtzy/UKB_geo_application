@@ -100,7 +100,7 @@ shinyUI(fluidPage(
 			uiOutput("title_map1"),
 			uiOutput("moran_map1")
 		),
-		
+
 
 
 
@@ -135,63 +135,37 @@ shinyUI(fluidPage(
 	conditionalPanel("input.section == 3",
 
 		fluidRow(column(4, offset=4, align="center", h5("This section aims to compare the geographical distribution of two or more variables. Select as many variable as you like, one map will appear for each. Moreover, scroll to the bottom of this page to check the scatterplot matrix and correlation estimates of each pair."))),
-		br(),
-		fluidRow( align="center", uiOutput("multimap_variable_button")),
-		br(),
+		br(), br(), br(),
 
-		# If less than 2 maps
-		conditionalPanel( "input.multimap_variable.length==1" ,
-			fluidRow(align="center", 
-				br(),br(),br(),br(),
-				h6("Please select at least 2 variables")
-			)
-		),
-
-		# If 2 maps
-		conditionalPanel( "input.multimap_variable.length==2" ,
-			fluidRow(align="center", 
-				column(4, offset=2, leafletOutput("compar_map1a", height=multimap_height) %>% withSpinner( color= "#2ecc71"), uiOutput("title_multimap1a") ),
-				column(4, leafletOutput("compar_map2a", height=multimap_height) %>% withSpinner( color= "#2ecc71"), uiOutput("title_multimap2a") )
-			)
-		),
-
-
-		# If 3 maps
-		conditionalPanel( "input.multimap_variable.length==3" ,
-			fluidRow(align="center", column(10, offset=1,
-				column(4, leafletOutput("compar_map1b", height=multimap_height) %>% withSpinner( color= "#2ecc71"), uiOutput("title_multimap1b") ),
-				column(4, leafletOutput("compar_map2b", height=multimap_height) %>% withSpinner( color= "#2ecc71"), uiOutput("title_multimap2b") ),
-				column(4, leafletOutput("compar_map3b", height=multimap_height) %>% withSpinner( color= "#2ecc71"), uiOutput("title_multimap3b") )
-			))
-		),
-
-		# If 4 maps
-		conditionalPanel( "input.multimap_variable.length==4" ,
-			fluidRow(align="center",
-				column(3, leafletOutput("compar_map1c", height=multimap_height) %>% withSpinner( color= "#2ecc71"), uiOutput("title_multimap1c") ),
-				column(3, leafletOutput("compar_map2c", height=multimap_height) %>% withSpinner( color= "#2ecc71"), uiOutput("title_multimap2c") ),
-				column(3, leafletOutput("compar_map3c", height=multimap_height) %>% withSpinner( color= "#2ecc71"), uiOutput("title_multimap3c") ),
-				column(3, leafletOutput("compar_map4c", height=multimap_height) %>% withSpinner( color= "#2ecc71"), uiOutput("title_multimap4c") )
-			)
-		),
-
-		# If 5 maps
-		conditionalPanel( "input.multimap_variable.length==5" ,
-			fluidRow(align="center", column(12, offset=1,
-				column(2, leafletOutput("compar_map1d", height=multimap_height) %>% withSpinner( color= "#2ecc71"), uiOutput("title_multimap1d") ),
-				column(2, leafletOutput("compar_map2d", height=multimap_height) %>% withSpinner( color= "#2ecc71"), uiOutput("title_multimap2d") ),
-				column(2, leafletOutput("compar_map3d", height=multimap_height) %>% withSpinner( color= "#2ecc71"), uiOutput("title_multimap3d") ),
-				column(2, leafletOutput("compar_map4d", height=multimap_height) %>% withSpinner( color= "#2ecc71"), uiOutput("title_multimap4d") ),
-				column(2, leafletOutput("compar_map5d", height=multimap_height) %>% withSpinner( color= "#2ecc71"), uiOutput("title_multimap5d") )
-			))
-		),
-
-
-		# If more than 5 maps
-		conditionalPanel( "input.multimap_variable.length>5" ,
-			fluidRow(align="center", 
-				br(),br(),br(),br(),
-				h6("Please select 5 variables maximum")
+		# And now the 4 maps
+		fluidRow(
+			column(3, offset=0, align="center",
+				br(),br(),
+				uiOutput("multimap_variable_button1"),
+				leafletOutput("compar_map1", height=multimap_height) %>% withSpinner( color= "#2ecc71"), 
+				br(),
+				uiOutput("title_multimap1") 
+			),
+			column(3, offset=0, align="center",
+				br(),br(),
+				uiOutput("multimap_variable_button2"),
+				leafletOutput("compar_map2", height=multimap_height) %>% withSpinner( color= "#2ecc71"), 
+				br(),
+				uiOutput("title_multimap2") 
+			),
+			column(3, offset=0, align="center",
+				br(),br(),
+				uiOutput("multimap_variable_button3"),
+				leafletOutput("compar_map3", height=multimap_height) %>% withSpinner( color= "#2ecc71"), 
+				br(),
+				uiOutput("title_multimap3") 
+			),
+			column(3, offset=0, align="center",
+				br(),br(),
+				uiOutput("multimap_variable_button4"),
+				leafletOutput("compar_map4", height=multimap_height) %>% withSpinner( color= "#2ecc71"), 
+				br(),
+				uiOutput("title_multimap4") 
 			)
 		),
 
