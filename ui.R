@@ -51,12 +51,12 @@ shinyUI(fluidPage(
 				hr(),
 				h5("We propose to work at 3 different geographical scales. This will divide UK in 414, 1k and 10k units respectively. You can also choose your resolution. Better resolution allows to zoom on the map, but a waiting time will be necessary. Click the + button for this option."),
 				strong("type of color scale:"),
-				selectInput(inputId = "type_scale", label = "", choices = c("Bin", "Quantile", "Numerical"), selected="Bin"),
+				selectInput(inputId = "type_scale", label = "", choices = c("Bin", "Quantile", "Numerical"), selected="Quantile"),
 
 				strong("Color Palette:"),
 				selectInput(inputId = "choice_palette", label = "", choices = c("Blues", "Reds", "viridis", "magma", "BuPu"), selected="Reds"),
 
-				strong("Number of slice:"),
+				strong("Number of bins (Quantile only):"),
 				sliderInput("slider_quantile", "", min=3, max=20, value=6, ticks=F)
 		
 		 	)
