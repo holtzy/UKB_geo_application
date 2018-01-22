@@ -72,10 +72,10 @@ source("FUNCTIONS/4_Spatial_Autocorrelation.R")
 # 4- A FUNCTION THAT RETURN THE APPROPRIATE DATASET TO FIT USER NEEDS
 user_data=NULL
 
-return_appropriate_dataset = function( map_variable, map_geo_unit, map_geo_transfo, user_data){
+return_appropriate_dataset = function( isNew, map_geo_unit, map_geo_transfo, user_data){
 
 	# Case number one: we show our data:
-	if( map_variable %in% all ){
+	if( isNew=="original" ){
 		if(map_geo_unit==1 & map_geo_transfo==1){ return(GBR_region) }
 		if(map_geo_unit==1 & map_geo_transfo==2){ return(GBR_region_cartogram) }
 		if(map_geo_unit==3 & map_geo_transfo==1){ return(GBR_hexa) }

@@ -11,33 +11,45 @@ shinyServer(function(input, output, session) {
 
 
 
-
-
-
-
-
   # ------------------------------------------------------------------------------
-  # FIRST PLOT
+  # RECOVER USER CHOICES - USEFUL ALL ALONG THE APP
   # ------------------------------------------------------------------------------
-		
-	output$main_map <- renderLeaflet({
 
-		mydata=return_appropriate_dataset( input$map_variable, input$map_geo_unit, input$map_geo_transfo, user_data() )
+  	# Which kind of variable do I have? Original, or newly loaded by the user?
+  	isNew=reactive({
+		req(input$map_variable != "")
+		return( ifelse(input$map_variable %in% all, "original", "new") )
+  	})
 
-		# Set zoom and troke width
-		if( input$map_geo_unit!=3 ){
-			myzoom=5.7
-			mystroke=1
-		}else{
-			myzoom=6
-			mystroke=3
-		}
+  	# Which type of map am I displaying
+  	mytype=reactive({
+ 		if(input$map_geo_unit==1 & input$map_geo_transfo==1){ return(GBR_region) }
+		if(input$map_geo_unit==1 & input$map_geo_transfo==2){ return(GBR_region_cartogram) }
+		if(input$map_geo_unit==3 & input$map_geo_transfo==1){ return(GBR_hexa) }
+		if(input$map_geo_unit==3 & input$map_geo_transfo==2){ return(GBR_hexa_cartogram) }
+  	})
 
-		# Get the variable chosen by user:
-		variable=input$map_variable
-		vector=as.numeric(as.character(mydata@data[ , variable]))
+  	# On which dataset are we gonna work?
+  	mydata=reactive({
+ 		req(isNew() != "")
+ 		return_appropriate_dataset( isNew(), input$map_geo_unit, input$map_geo_transfo, user_data() )
+  	})
 
-		# Create a color palette with handmade bins.
+	# What is the subsequent zoom? and stroke? and center part of the map?
+  	myzoom=reactive({ ifelse(input$map_geo_unit!=3, return(5.7), return(6) ) 	})
+  	mystroke=reactive({ ifelse(input$map_geo_unit!=3, return(1), return(3) ) 	})
+
+	# What is the vector of value we are going to plot
+	myvector=reactive({ 
+ 		req(input$map_variable != "")
+		mydata=mydata()
+		return( as.numeric(as.character( mydata@data[ , input$map_variable]) ) )
+	})
+
+	# What is the color palette we want to use?
+	mypalette=reactive({
+		req(input$map_variable != "")
+		vector=myvector()
 		if(input$type_scale=="Bin"){
 			mybins=seq( min(vector, na.rm=TRUE), max(vector, na.rm=TRUE), (max(vector, na.rm=TRUE)-min(vector, na.rm=TRUE))/input$slider_quantile) %>% round(2)
 			mypalette = colorBin( palette=input$choice_palette, domain=vector, na.color="transparent", bins=mybins)
@@ -48,22 +60,72 @@ shinyServer(function(input, output, session) {
 		if(input$type_scale=="Numerical"){
 			mypalette = colorNumeric( palette=input$choice_palette, domain=vector, na.color="transparent")
 		}
+		return(mypalette)
+	})
 
-		# text
-		mytext=paste("Region: ", mydata@data$geo_label,"<br/>", "Number of people: ", mydata@data$nb_people, "<br/>", "Value: ", round(vector,2), sep="") %>%
-		  lapply(htmltools::HTML)
-		  
+	# text I will return on the map
+	mytext=reactive({
+		req(input$map_variable != "")
+		mydata=mydata()
+		vector=myvector()
+		paste("Region: ", mydata@data$geo_label,"<br/>", "Number of people: ", mydata@data$nb_people, "<br/>", "Value: ", round(vector,2), sep="") %>% lapply(htmltools::HTML)
+	})
+
+	# Now I have a set of reactive value that I can use on my map.
+	# If the user change only the number of bins in the palette for example, only the implicated reactives will be recalculated!
+
+
+
+
+
+
+  # ------------------------------------------------------------------------------
+  # FIRST PLOT
+  # ------------------------------------------------------------------------------
+		
+	# First I do a default background map
+	output$main_map <- renderLeaflet({
+
+		# I will remake the map from the beginning if the user change involves change in shape 
+		mydata=mytype()
+		myzoom=myzoom()
+				  
 		# Final Map
 		leaflet(mydata, options = leafletOptions(zoomControl = TRUE, minZoom = myzoom, maxZoom = 8)) %>% 
+		  	addPolygons( data=mydata , stroke=FALSE, fillColor="transparent", color="transparent" )
+	})
+
+
+
+	# Second I do a observer that will change the map using leaflet proxy.
+	observeEvent( { input$map_variable ; input$map_geo_transfo ; input$map_geo_unit ; input$type_scale ; input$choice_palette},  {
+		
+		# This chunck must be run only if the map_variable has been computed by shiny. Indeed, the object map_geo_transfo and map_geo_unit are created before, so I need to make this check
+		req(input$map_variable != "")
+		
+		# I get back all the users choice:
+		mydata=mydata()
+		myzoom=myzoom()
+		mystroke=mystroke()
+		variable=input$map_variable
+		mytext=mytext()
+		myvector=myvector()
+		mypalette=mypalette()
+
+    	## plot the subsetted data
+    	leafletProxy("main_map") %>%
+      		clearShapes() %>%
 		  	addPolygons( 
-		    	fillColor = ~mypalette(vector), stroke=TRUE, fillOpacity = 1, color=~mypalette(vector), weight=mystroke,
-   				highlight = highlightOptions( weight = 5, color = ~mypalette(vector), dashArray = "", fillOpacity = 0.3, bringToFront = TRUE),
+		  		data=mydata, 
+		    	fillColor = ~mypalette(myvector), stroke=TRUE, fillOpacity = 1, color=~mypalette(myvector), weight=mystroke,
+   				highlight = highlightOptions( weight = 5, color = ~mypalette(myvector), dashArray = "", fillOpacity = 0.3, bringToFront = TRUE),
     			label = mytext,
     			labelOptions = labelOptions( style = list("font-weight" = "normal", padding = "3px 8px"), textsize = "13px", direction = "auto")
-  			) %>%
-  			addLegend( pal=mypalette, values=vector, opacity=0.9, title = variable, position = "bottomright" )
+  			) #%>%
+  			#addLegend( pal=mypalette, values=myvector, opacity=0.9, title = variable, position = "bottomright" )
+  	})
 
-	})
+
 
 
 	# And return a title for this plot
@@ -454,6 +516,8 @@ shinyServer(function(input, output, session) {
 
 
 
+
+
   # ------------------------------------------------------------------------------
   # LOAD USER DATA
   # ------------------------------------------------------------------------------
@@ -530,7 +594,6 @@ shinyServer(function(input, output, session) {
 	output$multimap_variable_button <- renderUI({
 		pickerInput(inputId = "multimap_variable", label = "", choices = list(User_variables=colnames(inFile())[-c(1)], Polygenic_Risk_Score = list_PRS, PC_from_UKB = list_PC_UKB, PRS_corrected_UKB=list_PRS_reg_UKB, PC_from_1000genome = list_PC_1KG, PRS_corrected_1000genome=list_PRS_reg_1KG  ), multiple=TRUE, selected=c("PC1", "PC2"), width="300px")
 	})
-		
 		
 
 
