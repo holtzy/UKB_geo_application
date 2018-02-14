@@ -168,3 +168,28 @@ h3 {
 /* ------------------------------------------------------------*/ 
 
 
+
+/* ------------------------------------------------------------*/ 
+/* INCOMPATIBILITY BETWEEN LEAFLET AND D3HEATMAP: I NEED TO RECREATE THE .INFO CSS WITH ANOTHER NAME*/
+.info {
+    box-shadow: 0 0 7px rgba(0,0,0,0.2);
+}
+.info2 {
+    padding: 6px 8px;
+    font: 14px/16px Arial, Helvetica, sans-serif;
+        line-height: 16px;
+    background: white;
+    background: rgba(255,255,255,0.8);
+    box-shadow: 0 0 1px rgba(0,0,0,0.2);
+    border-radius: 5px;
+}
+/* ------------------------------------------------------------*/ 
+
+
+
+
+
+
+
+
+

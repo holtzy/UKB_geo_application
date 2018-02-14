@@ -89,7 +89,7 @@ shinyServer(function(input, output, session) {
 				  
 		# Final Map
 		leaflet(mydata, options = leafletOptions(zoomControl = TRUE, minZoom = myzoom, maxZoom = 8)) %>% 
-		  	addPolygons( data=mydata , stroke=FALSE, fillColor="transparent", color="transparent" )
+		  	addPolygons( data=mydata , stroke=FALSE, fillColor="transparent" ) 
 	})
 
 
@@ -110,19 +110,21 @@ shinyServer(function(input, output, session) {
 		myvector=myvector()
 		mypalette=mypalette()
 
-    	## plot the subsetted data
+		## plot the subsetted data
     	leafletProxy("main_map") %>%
       		clearShapes() %>%
+      		clearControls() %>%
 		  	addPolygons( 
 		  		data=mydata, 
-		    	fillColor = ~mypalette(myvector), stroke=TRUE, fillOpacity = 1, color=~mypalette(myvector), weight=mystroke,
+		    	fillColor = ~mypalette(myvector), fillOpacity = 1,  
+		    	stroke=TRUE, color=mypalette(myvector), weight=mystroke,
    				highlight = highlightOptions( weight = 5, color = ~mypalette(myvector), dashArray = "", fillOpacity = 0.3, bringToFront = TRUE),
     			label = mytext,
     			labelOptions = labelOptions( style = list("font-weight" = "normal", padding = "3px 8px"), textsize = "13px", direction = "auto")
-  			) #%>%
-  			#addLegend( pal=mypalette, values=myvector, opacity=0.9, title = variable, position = "bottomright" )
+  			) %>%
+  			addLegend( pal = mypalette, values = myvector, opacity=1, title = variable, position = "bottomleft" )
   	})
-
+	# className = "info2"
 
 
 
@@ -192,7 +194,7 @@ shinyServer(function(input, output, session) {
 		myzoom=myzoom()
 				  
 		# Final Map
-		leaflet(mydata, options = leafletOptions(zoomControl = FALSE, minZoom = myzoom, maxZoom = 8)) %>% 
+		leaflet(mydata, options = leafletOptions(zoomControl = FALSE, minZoom = myzoom, maxZoom = myzoom)) %>% 
 		  	addPolygons( data=mydata , stroke=FALSE, fillColor="transparent", color="transparent" )
 	})
 
@@ -405,14 +407,14 @@ shinyServer(function(input, output, session) {
 
   		# Make the plot
 		p=ggplot(data=tmp, aes(x=varx, y=vary, color=nb_people, text=text, size=nb_people)) + 
-  			geom_point() +
+  			geom_point(alpha=0.8) +
   			coord_equal() +
   			scale_color_viridis() +
   			theme_bw() +
   			theme(legend.position = "none") +
   			xlab(input$Xaxis_scatter) + 
   			ylab(input$Yaxis_scatter) +
-  			ggtitle(paste("Correlation: ", round(cor(tmp$varx, tmp$varx, use="complete.obs"),2) , sep=""))
+  			ggtitle(paste("Correlation: ", round(cor(tmp$varx, tmp$vary, use="complete.obs"),2) , sep=""))
 
 
   		ggplotly(p, tooltip="text", )
