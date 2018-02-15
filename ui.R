@@ -106,15 +106,19 @@ shinyUI(fluidPage(
 
 		# RIGHT SIDE
 		column(2, align="right",
-			br(), br(), br(), br(),br(), br(), br(), br(),br(), br(), br(), br(),
+			br(), br(), br(), br(),br(), br(), br(), 
 			h2("Variable"),
 			hr(),
 			h5("We propose to represent the geographical distribution of 126 variables. These veriable are split in several groups: Principal Components (PCs), Polygenic Risk Scores (PRS). To understand how these variable have been computed, visit the method section."),
-			uiOutput("map_variable_button"),
-			br(),
-			h5("Clusterised variable?"),
-			dropdownButton( circle = TRUE, size= "xs", width="600px", right=TRUE, up=TRUE, plotOutput("barplot", height="780px"))
-		)
+			uiOutput("map_variable_button")
+		),
+		column(2, align="right",
+			br(), br(),
+			h2("Moran's I value"),
+			hr(),
+			h5( strong(a("Moran's I value", style="color:lightblue", href="http://onlinelibrary.wiley.com/doi/10.1111/j.1538-4632.2007.00708.x/abstract;jsessionid=154996FCB55E5EE7CBD2B3B65BC1DB5C.f02t03")), " is a measure of spatial autocorrelation, i.e. a correlation in a signal among nearby locations in space. Click on the plus button below to see what variables are the most clusterised"),
+			dropdownButton( circle = TRUE, icon = icon("plus"), size= "s", width="600px", right=TRUE, up=TRUE, plotOutput("barplot", height="780px"))
+		)		
 	),
 	br(), br(),
 
@@ -239,40 +243,40 @@ shinyUI(fluidPage(
 	conditionalPanel("input.section == 2",
 
 		fluidRow(column(6, offset=3, align="left",
-			br(), br(), br(),
+			br(), br(),
 			h2("Introduction"),
 			hr()
 		)),
 		fluidRow(column(6, offset=3, align="justify",
-			h5("The first law of geography states that everything is related to everything else, but near things are more
-			related than distant things. 1 Humans living near each other are more related and tend to share more
-			DNA sequence than distant human beings, which is reflected in genome-wide allele frequency
-			differences on a global scale 2 as well as on a finer scales. 3-5 This clustering on ancestry is a result of
+			h5("The first law of geography states that everything is related to everything else, but ", strong(a("near things are more
+			related than distant things", style="color:lightblue", href="https://www.jstor.org/stable/143141?seq=1#page_scan_tab_contents")), ". Humans living near each other are more related and tend to share more
+			DNA sequence than distant human beings, which is reflected in ", strong(a("genome-wide allele frequency
+			differences", style="color:lightblue", href="https://www.nature.com/articles/nature07331")), " on a global scale as well as on a finer scales. 3-5 This clustering on ancestry is a result of
 			historic population movements, genetic drift, natural selection, and/or admixture. We examine
 			geographic distributions of ancestry and functional genetic variation in the United Kingdom (UK).")
 		)),
-		br(),br(),
+		br(),
 
 
 
 		fluidRow(column(6, offset=3, align="left",
-			br(), br(), br(),
+			br(), br(),
 			h2("Participants"),
 			hr()
 		)),
 		fluidRow(column(6, offset=3, align="justify",
-			h5("The participants of this study come from UK Biobank (UKB), 6 which has received ethical approval from
+			h5("The participants of this study come from ", strong(a("UK Biobank (UKB)", style="color:lightblue", href="https://www.biorxiv.org/content/early/2017/07/20/166298")), ", which has received ethical approval from
 			the National Health Service North West Centre for Research Ethics Committee (reference:
 			11/NW/0382). A total of 502,655 participants aged between 37 and 73 years old were recruited in the
 			UK between 2006 and 2010. They underwent a wide range of cognitive, health, and lifestyle
 			assessments, provided blood, urine, and saliva samples, and agreed to have their health followed
 			longitudinally.")
 		)),
-		br(),br(),
+		br(),
 
 
 		fluidRow(column(6, offset=3, align="left",
-			br(), br(), br(),
+			br(), br(),
 			h2("Genotypes and QC"),
 			hr()
 		)),
@@ -297,7 +301,7 @@ shinyUI(fluidPage(
 			PCA to construct British ancestry-informative PCs was conducted on this SNP set with minimized LD on
 			unrelated individuals and was then projected onto the complete set of European individuals.")
 		)),
-		br(),br(),
+		br(),
 
 
 		fluidRow(column(6, offset=3, align="left",
@@ -391,6 +395,9 @@ shinyUI(fluidPage(
 			h5("Once your file as been read correctly, you can run the spatial analysis. This calculation will calculate summary statics for every region of the maps and build the cartograms. Once the computation is done, you will be automatically redirected to the welcome page and all your variable will be available in the 'variable' button"),
 			br(), 
 			actionButton("button_computation", "Run analysis"),
+			conditionalPanel("output.flagOK",
+				downloadButton("downloadData", "Download your aggregated data")
+			),
 			uiOutput("info_message") %>% withSpinner( color= "#2ecc71"),
 			useSweetAlert(),
 			br()			

@@ -137,10 +137,10 @@ compute_shape_sumstat = function(input, output){
   
   
   # ----------- REGION LARGE ---------------------------
-  GBR_region_cartogram = cartogram(GBR_region, "nb_people", itermax=2)
+  GBR_region_cartogram = cartogram(GBR_region, "nb_people", itermax=5)
   
   # ----------- HEXAGONE ---------------------------
-  GBR_hexa_cartogram = cartogram(GBR_hexa, "nb_people", itermax=2)
+  GBR_hexa_cartogram = cartogram(GBR_hexa, "nb_people", itermax=5)
   
 
 

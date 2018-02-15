@@ -136,7 +136,7 @@ shinyServer(function(input, output, session) {
 	output$moran_map1<- renderUI({ 
 		req(input$map_variable != "")
 		variable=input$map_variable
-		my_moran = moran_data[ which(rownames(moran_data)==variable),"statistic"] %>% round(2)
+		my_moran = react_values$moran_df[ which(rownames(react_values$moran_df)==variable),"statistic"] %>% round(2)
 		mytext=paste( "Moran Coefficient: ", my_moran, sep="" )
 		h3(mytext)
 	})
@@ -343,22 +343,22 @@ shinyServer(function(input, output, session) {
 	# ------ TITLES -------- #
 
 	output$title_multimap1  <- renderUI({ 
-		my_moran = moran_data[ which(rownames(moran_data)==input$multimap_variable1), "statistic"] %>% round(2)
+		my_moran = react_values$moran_df[ which(rownames(react_values$moran_df)==input$multimap_variable1),"statistic"] %>% round(2)
 		helpText(a(input$multimap_variable1, style="color:#2ecc71; font-size:22px;") , " (", my_moran, ")", sep="")
 	})
 
 	output$title_multimap2  <- renderUI({ 
-		my_moran = moran_data[ which(rownames(moran_data)==input$multimap_variable2), "statistic"] %>% round(2)
+		my_moran = react_values$moran_df[ which(rownames(react_values$moran_df)==input$multimap_variable2),"statistic"] %>% round(2)
 		helpText(a(input$multimap_variable2, style="color:#2ecc71; font-size:22px;") , " (", my_moran, ")", sep="")
 	})
 
 	output$title_multimap3  <- renderUI({ 
-		my_moran = moran_data[ which(rownames(moran_data)==input$multimap_variable3), "statistic"] %>% round(2)
+		my_moran = react_values$moran_df[ which(rownames(react_values$moran_df)==input$multimap_variable3),"statistic"] %>% round(2)
 		helpText(a(input$multimap_variable3, style="color:#2ecc71; font-size:22px;") , " (", my_moran, ")", sep="")
 	})
 
 	output$title_multimap4  <- renderUI({ 
-		my_moran = moran_data[ which(rownames(moran_data)==input$multimap_variable4), "statistic"] %>% round(2)
+		my_moran = react_values$moran_df[ which(rownames(react_values$moran_df)==input$multimap_variable4),"statistic"] %>% round(2)
 		helpText(a(input$multimap_variable4, style="color:#2ecc71; font-size:22px;") , " (", my_moran, ")", sep="")
 	})
 
@@ -405,6 +405,11 @@ shinyServer(function(input, output, session) {
   		# Prepare text
 		tmp$text=paste( tmp$geo_label, "\n", input$Xaxis_scatter, ": ", round(tmp$varx, 2), "\n", input$Yaxis_scatter, ": ", round(tmp$vary, 2), "\n", "Number of individual:", tmp$nb_people, sep="")
 
+		# Compute correlation
+		mycor <- cor.test(tmp$varx, tmp$vary, use="complete.obs")
+		clean_pval <- mycor$p.value %>% format.pval()
+		clean_cor <- mycor$estimate %>% round(2)
+
   		# Make the plot
 		p=ggplot(data=tmp, aes(x=varx, y=vary, color=nb_people, text=text, size=nb_people)) + 
   			geom_point(alpha=0.8) +
@@ -414,7 +419,7 @@ shinyServer(function(input, output, session) {
   			theme(legend.position = "none") +
   			xlab(input$Xaxis_scatter) + 
   			ylab(input$Yaxis_scatter) +
-  			ggtitle(paste("Correlation: ", round(cor(tmp$varx, tmp$vary, use="complete.obs"),2) , sep=""))
+  			ggtitle(paste("Correlation: ", clean_cor, " (p: ", clean_pval, ")", sep=""))
 
 
   		ggplotly(p, tooltip="text", )
@@ -524,6 +529,16 @@ shinyServer(function(input, output, session) {
 			return(tmp)		
 	})
 
+
+	# --- Fourth step: compute the moran's value for all the new variables.
+	observeEvent( user_data(), {
+		print("compute moran's statistic")
+		tmp <- compute_autocor( user_data()[[1]] )
+		react_values$moran_df <- rbind( react_values$moran_df, tmp )
+		print("added OK")
+		} )	
+
+
 	# And show a message that tells if computation is over.
 	output$info_message<- renderUI({ 
 		if(is.null( user_data() )){
@@ -540,7 +555,6 @@ shinyServer(function(input, output, session) {
 	output$map_variable_button <- renderUI({
 		pickerInput(inputId = "map_variable", label = "", choices = list(User_variables=colnames(inFile())[-c(1)], Polygenic_Risk_Score = list_PRS, PC_from_UKB = list_PC_UKB, PRS_corrected_UKB=list_PRS_reg_UKB, PC_from_1000genome = list_PC_1KG, PRS_corrected_1000genome=list_PRS_reg_1KG  ), selected='PC1')
 	})
-
 	output$multimap_variable_button1 <- renderUI({
 		pickerInput(inputId = "multimap_variable1", label = "", choices = list(User_variables=colnames(inFile())[-c(1)], Polygenic_Risk_Score = list_PRS, PC_from_UKB = list_PC_UKB, PRS_corrected_UKB=list_PRS_reg_UKB, PC_from_1000genome = list_PC_1KG, PRS_corrected_1000genome=list_PRS_reg_1KG  ), multiple=FALSE, selected="PC1", width="300px")
 	})
@@ -556,8 +570,18 @@ shinyServer(function(input, output, session) {
 
 
 
+	# --- Offer to the user to download his aggregated data
+	output$downloadData <- downloadHandler(
+    	filename = "UKB_geo.csv",
+    	content = function(file) {
+    		data=user_data()[[1]]@data
+    		write.csv(data, file, row.names=FALSE)
+    	}
+  	)
 
-
+	# --- A flag that tells if user data is available or not
+	output$flagOK <- reactive( !is.null(user_data()) )
+	outputOptions(output, 'flagOK', suspendWhenHidden=FALSE)
 
 
 

@@ -34,6 +34,8 @@ load("DATA/Abdel_data.Rdata")
 
 # Spatial Autocorrelation values:
 load("DATA/Spatial_Autocor.Rdata")
+# I transform it in a reactive value
+react_values <- reactiveValues(moran_df = moran_data)
 
 
 
