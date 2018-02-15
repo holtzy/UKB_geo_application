@@ -124,7 +124,7 @@ multimap_height="700px"
 
 # -----------------------------------
 # 6- Enable Bookmarking
-enableBookmarking(store = "server")
+enableBookmarking(store = "url")
 
 
 

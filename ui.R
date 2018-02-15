@@ -392,7 +392,7 @@ shinyUI(fluidPage(
 			br(), br(), br(), br(),br(), 
 			h2("2 - Calculate summary statistics"),
 			hr(),
-			h5("Once your file as been read correctly, you can run the spatial analysis. This calculation will calculate summary statics for every region of the maps and build the cartograms. Once the computation is done, you will be automatically redirected to the welcome page and all your variable will be available in the 'variable' button"),
+			h5("Once your file as been read correctly, you can run the spatial analysis. This will calculate summary statics for every region of the maps and build the cartograms. A pop-up window will inform you once the computation will be over. It will thus be possible to go back on the exploration and compare tabs; your variable(s) will be available in the 'variable' button"),
 			br(), 
 			actionButton("button_computation", "Run analysis"),
 			conditionalPanel("output.flagOK",
