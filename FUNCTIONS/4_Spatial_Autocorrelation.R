@@ -18,8 +18,7 @@
 
 # 1 - I run this script on Abdel data using these command lines. 
 #load("~/Dropbox/QBI/15_ABDEL_UKB_MAP/UKB_geo_application/DATA/Abdel_data.Rdata")
-#input=GBR_region
-#moran_data=compute_autocor(input)
+#moran_data=compute_autocor(GBR_region)
 #save(moran_data, file="~/Dropbox/QBI/15_ABDEL_UKB_MAP/UKB_geo_application/DATA/Spatial_Autocor.Rdata")
 
 # 2 - This function is then called in the shiny app in case a user loads his data
@@ -49,7 +48,7 @@ compute_autocor = function(input){
 
 
   # moran test
-  tmp <- lapply(input@data, moran.mc, sp_weights, nsim=1000, zero.policy = TRUE, na.action=na.omit)
+  tmp <- lapply(input@data, moran.mc, sp_weights, nsim=100000, zero.policy = TRUE, na.action=na.omit)
   tmp <- t(simplify2array(tmp))
   tmp <- as.data.frame(tmp[,1:3])
   moran_test <- t(do.call(rbind, lapply(tmp, unlist)))

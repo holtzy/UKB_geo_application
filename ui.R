@@ -17,7 +17,6 @@ shinyUI(fluidPage(
 
 
 
-
 	# -------------------------------------------------------------------------------------
 	# === ROW : title + Main tabs
 	fluidRow( align="center",
@@ -28,10 +27,10 @@ shinyUI(fluidPage(
 	),
 	fluidRow( align="center",
 		br(),
-		column(4, offset=4, align="center", radioGroupButtons( "section",label = NULL, choices=c("Methods"=2, "Explore"=1, "Compare"=3, "Load your data"=4), selected=1 )),
+		column(3, offset=4, align="center", radioGroupButtons( "section",label = NULL, choices=c("Methods"=2, "Explore"=1, "Compare"=3, "Load your data"=4), selected=1 )),
 	
 		# Customization button
-		column(2, offset=0, align="left", 
+		column(1, offset=0, align="right", 
 			dropdownButton(
 				circle = TRUE, icon = icon("wrench"), width = "600px", tooltip = tooltipOptions(title = "Custom your maps!"),
 			
@@ -60,7 +59,8 @@ shinyUI(fluidPage(
 				sliderInput("slider_quantile", "", min=3, max=20, value=6, ticks=F)
 		
 		 	)
-		)
+		),
+		column(1, align="left", bookmarkButton("Share what you see"))
 	),
 
 	column(8, offset=2, hr()),	

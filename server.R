@@ -36,8 +36,8 @@ shinyServer(function(input, output, session) {
   	})
 
 	# What is the subsequent zoom? and stroke? and center part of the map?
-  	myzoom=reactive({ ifelse(input$map_geo_unit!=3, return(5.7), return(6) ) 	})
-  	mystroke=reactive({ ifelse(input$map_geo_unit!=3, return(1), return(3) ) 	})
+  	myzoom=reactive({  ifelse(input$map_geo_unit!=3, return(5.7), return(6) ) 	})
+  	mystroke=reactive({  ifelse(input$map_geo_unit!=3, return(1), return(3) ) 	})
 
 	# What is the vector of value we are going to plot
 	myvector=reactive({ 
@@ -117,7 +117,7 @@ shinyServer(function(input, output, session) {
 		  	addPolygons( 
 		  		data=mydata, 
 		    	fillColor = ~mypalette(myvector), fillOpacity = 1,  
-		    	stroke=TRUE, color=mypalette(myvector), weight=mystroke,
+		    	stroke=TRUE, color=ifelse(input$map_geo_unit==1, "black", mypalette(myvector) ), weight=mystroke,
    				highlight = highlightOptions( weight = 5, color = ~mypalette(myvector), dashArray = "", fillOpacity = 0.3, bringToFront = TRUE),
     			label = mytext,
     			labelOptions = labelOptions( style = list("font-weight" = "normal", padding = "3px 8px"), textsize = "13px", direction = "auto")
@@ -136,11 +136,12 @@ shinyServer(function(input, output, session) {
 	output$moran_map1<- renderUI({ 
 		req(input$map_variable != "")
 		variable=input$map_variable
-		my_moran = react_values$moran_df[ which(rownames(react_values$moran_df)==variable),"statistic"] %>% round(2)
-		mytext=paste( "Moran Coefficient: ", my_moran, sep="" )
+		temp <- react_values$moran_df[ which(rownames(react_values$moran_df)==variable), ]
+		my_moran =  temp["statistic"] %>% round(2)
+		my_pval = temp['p.value'] %>%  format.pval(digits=2)
+		mytext=paste( "Moran Coefficient: ", my_moran, " (p=", my_pval, ")", sep="" )
 		h3(mytext)
 	})
-
 
 
 
@@ -343,23 +344,35 @@ shinyServer(function(input, output, session) {
 	# ------ TITLES -------- #
 
 	output$title_multimap1  <- renderUI({ 
-		my_moran = react_values$moran_df[ which(rownames(react_values$moran_df)==input$multimap_variable1),"statistic"] %>% round(2)
-		helpText(a(input$multimap_variable1, style="color:#2ecc71; font-size:22px;") , " (", my_moran, ")", sep="")
+		temp <- react_values$moran_df[ which(rownames(react_values$moran_df)==input$multimap_variable1), ]
+		my_moran =  temp["statistic"] %>% round(2)
+		my_pval = temp['p.value'] %>%  format.pval(digits=2)
+		mytext=paste( "Moran: ", my_moran, " (p=", my_pval, ")", sep="" )
+		helpText( a(input$multimap_variable1, style="color:#2ecc71; font-size:22px;") , mytext)
 	})
 
 	output$title_multimap2  <- renderUI({ 
-		my_moran = react_values$moran_df[ which(rownames(react_values$moran_df)==input$multimap_variable2),"statistic"] %>% round(2)
-		helpText(a(input$multimap_variable2, style="color:#2ecc71; font-size:22px;") , " (", my_moran, ")", sep="")
+		temp <- react_values$moran_df[ which(rownames(react_values$moran_df)==input$multimap_variable2), ]
+		my_moran =  temp["statistic"] %>% round(2)
+		my_pval = temp['p.value'] %>%  format.pval(digits=2)
+		mytext=paste( "Moran: ", my_moran, " (p=", my_pval, ")", sep="" )
+		helpText( a(input$multimap_variable1, style="color:#2ecc71; font-size:22px;") , mytext)
 	})
 
 	output$title_multimap3  <- renderUI({ 
-		my_moran = react_values$moran_df[ which(rownames(react_values$moran_df)==input$multimap_variable3),"statistic"] %>% round(2)
-		helpText(a(input$multimap_variable3, style="color:#2ecc71; font-size:22px;") , " (", my_moran, ")", sep="")
+		temp <- react_values$moran_df[ which(rownames(react_values$moran_df)==input$multimap_variable3), ]
+		my_moran =  temp["statistic"] %>% round(2)
+		my_pval = temp['p.value'] %>%  format.pval(digits=2)
+		mytext=paste( "Moran: ", my_moran, " (p=", my_pval, ")", sep="" )
+		helpText( a(input$multimap_variable1, style="color:#2ecc71; font-size:22px;") , mytext)
 	})
 
 	output$title_multimap4  <- renderUI({ 
-		my_moran = react_values$moran_df[ which(rownames(react_values$moran_df)==input$multimap_variable4),"statistic"] %>% round(2)
-		helpText(a(input$multimap_variable4, style="color:#2ecc71; font-size:22px;") , " (", my_moran, ")", sep="")
+		temp <- react_values$moran_df[ which(rownames(react_values$moran_df)==input$multimap_variable4), ]
+		my_moran =  temp["statistic"] %>% round(2)
+		my_pval = temp['p.value'] %>%  format.pval(digits=2)
+		mytext=paste( "Moran: ", my_moran, " (p=", my_pval, ")", sep="" )
+		helpText( a(input$multimap_variable1, style="color:#2ecc71; font-size:22px;") , mytext)
 	})
 
 
