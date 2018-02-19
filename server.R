@@ -174,7 +174,19 @@ shinyServer(function(input, output, session) {
   	})
 
 
-
+moran_data %>%
+  		data.frame() %>%
+  		rownames_to_column(var = "variable") %>%
+  		mutate(type = ifelse(variable %in% list_PRS, 1, ifelse(variable %in% list_PRS_reg_UKB,2,3 ))) %>%
+  		mutate( variable = variable %>% gsub(".1kG_residual", "",. ) %>% gsub(".residual", "",. ) ) %>%
+  		ggplot( aes(x=variable, y=statistic, color=as.factor(type))) +
+  			geom_point( size=4) +
+ 		    coord_flip() +
+		    ylab("Moran I value") +
+		    xlab("") +
+		    theme_minimal() +
+		    theme(legend.position="none", axis.text=element_text(size=13))
+ 			
 
 
 
@@ -356,7 +368,7 @@ shinyServer(function(input, output, session) {
 		my_moran =  temp["statistic"] %>% round(2)
 		my_pval = temp['p.value'] %>%  format.pval(digits=2)
 		mytext=paste( "Moran: ", my_moran, " (p=", my_pval, ")", sep="" )
-		helpText( a(input$multimap_variable1, style="color:#2ecc71; font-size:22px;") , mytext)
+		helpText( a(input$multimap_variable2, style="color:#2ecc71; font-size:22px;") , mytext)
 	})
 
 	output$title_multimap3  <- renderUI({ 
@@ -364,7 +376,7 @@ shinyServer(function(input, output, session) {
 		my_moran =  temp["statistic"] %>% round(2)
 		my_pval = temp['p.value'] %>%  format.pval(digits=2)
 		mytext=paste( "Moran: ", my_moran, " (p=", my_pval, ")", sep="" )
-		helpText( a(input$multimap_variable1, style="color:#2ecc71; font-size:22px;") , mytext)
+		helpText( a(input$multimap_variable3, style="color:#2ecc71; font-size:22px;") , mytext)
 	})
 
 	output$title_multimap4  <- renderUI({ 
@@ -372,7 +384,7 @@ shinyServer(function(input, output, session) {
 		my_moran =  temp["statistic"] %>% round(2)
 		my_pval = temp['p.value'] %>%  format.pval(digits=2)
 		mytext=paste( "Moran: ", my_moran, " (p=", my_pval, ")", sep="" )
-		helpText( a(input$multimap_variable1, style="color:#2ecc71; font-size:22px;") , mytext)
+		helpText( a(input$multimap_variable4, style="color:#2ecc71; font-size:22px;") , mytext)
 	})
 
 
@@ -453,8 +465,34 @@ shinyServer(function(input, output, session) {
   # ------------------------------------------------------------------------------
 	
 
-	output$heatmap=renderD3heatmap({
+	# Heatmap is incompatible with Leaflet legend... CSS incompatibility because the same .info class is used..
+	# Thus I will do a heatmap using ggplot2 and plotly instead.
+	#output$heatmap=renderD3heatmap({
 
+  		# Do it only if the user is in the 'compare' tab
+  	#	req(input$section==3)
+
+  		# recover selected data
+	#	mydata=return_appropriate_dataset( "original", input$map_geo_unit, input$map_geo_transfo, user_data())
+
+		# calculate complete correlation matrix
+	#	mycor = GBR_region@data %>% select( -geo_label) %>% cor( . , use="complete.obs")
+	#	diag(mycor)=NA
+
+		# Keep only fields that interest user
+	#	mylist=list(list_PRS, list_PC_UKB , list_PRS_reg_UKB , list_PC_1KG ,  list_PRS_reg_1KG)
+	#	row_to_keep = which( rownames(mycor) %in% mylist[[as.numeric(input$varX_heatmap)]] )
+	#	col_to_keep = which( rownames(mycor) %in% mylist[[as.numeric(input$varY_heatmap)]] )
+	#	mycor=mycor[ row_to_keep, col_to_keep ]
+
+		# graphic
+	#	d3heatmap(mycor, color = "Blues")
+
+	
+	#})
+
+	output$heatmap=renderPlotly({
+  		
   		# Do it only if the user is in the 'compare' tab
   		req(input$section==3)
 
@@ -471,13 +509,38 @@ shinyServer(function(input, output, session) {
 		col_to_keep = which( rownames(mycor) %in% mylist[[as.numeric(input$varY_heatmap)]] )
 		mycor=mycor[ row_to_keep, col_to_keep ]
 
-		# graphic
-		d3heatmap(mycor, color = "Blues")
+		# Make a long format for ggplot2
+		don <- mycor %>% 
+			as.data.frame() %>% 
+			rownames_to_column("var1") %>% 
+			gather(var2, value, -1) %>%
+			mutate( var1 = var1 %>% gsub(".1kG_residual", "",. ) %>% gsub(".residual", "",. )  ) %>%
+			mutate( var2 = var2 %>% gsub(".1kG_residual", "",. ) %>% gsub(".residual", "",. )  ) 
 
-	
+		# Make the plot
+		p <- don %>%  
+		  ggplot(aes( x=var1, y=var2)) + 
+			geom_tile(aes(fill = value), colour = "white", size=4) + 
+			#scale_fill_gradient(low = "white", high = "steelblue", breaks=c(0, .2, .4, .6, .8, 1), labels=c(0, .2, .4, .6, .8, 1) ) +
+			scale_fill_distiller(palette = "PRGn") +
+			theme_grey(base_size = 9) + 
+			labs(x = "Exposure", y = "Outcome") + 
+			scale_x_discrete(expand = c(0, 0)) +
+			scale_y_discrete(expand = c(0, 0)) + 
+			theme(
+			  #legend.position = "none", 
+			  axis.ticks = element_blank(), 
+			  axis.text.x = element_text(size = 10, angle = 45, hjust = 0, colour = "grey50"),
+			  axis.title = element_text(size = 14, angle = 0, hjust = 1, colour = "#2ecc71"),
+			  axis.text.y = element_text(size = 10, angle = 0, hjust = 0, colour = "grey50"),
+			  plot.margin = unit(c(1.8,1.8,1.8,1.8), "cm")
+			)
+
+		# Plotly call
+		ggplotly(p)
+
+
 	})
-
-
 
 
 

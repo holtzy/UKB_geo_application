@@ -27,7 +27,7 @@ shinyUI(fluidPage(
 	),
 	fluidRow( align="center",
 		br(),
-		column(3, offset=4, align="center", radioGroupButtons( "section",label = NULL, choices=c("Methods"=2, "Explore"=1, "Compare"=3, "Load your data"=4), selected=1 )),
+		column(4, offset=4, align="center", radioGroupButtons( "section",label = NULL, choices=c("Methods"=2, "Explore"=1, "Compare"=3, "Load your data"=4), selected=1 )),
 	
 		# Customization button
 		column(1, offset=0, align="right", 
@@ -214,7 +214,7 @@ shinyUI(fluidPage(
 		),
 		br(),
 		fluidRow(align="center", 
-			#column(6, offset=3, d3heatmapOutput("heatmap", width="700px", height="700px") %>% withSpinner( color= "#2ecc71")),
+			column(6, offset=3, plotlyOutput("heatmap", width="850px", height="850px") %>% withSpinner( color= "#2ecc71")),
 			column(1, br(),br(),br(),br(),br(),br(),br(), radioGroupButtons(inputId = "varY_heatmap", label = "", choices = c("PRS (no correction)" = 1, "UKB PCs" = 2, "PRS corrected by UKB"=3, "1000 genome PCs" = 4, "PRS corrected by 1000g"=5  ), selected=2, direction = "vertical") )
 		), 
 		fluidRow(align="center", column(4, offset=4, h3(tags$u(tags$b("Figure 4")),": Heatmap displaying the Pearson correlation coefficient between variable. Pick up the group of traits of the Y axis using the right buttons (and use bottom buttons for the X axis)."))),
