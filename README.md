@@ -18,23 +18,14 @@ How to use the application
 --------
 The best way to use this application is via its online version. (Link not publically available yet).
 
-If you really want to use this application locally you can:
+If you really want to use this application locally you can type in R:
 
-**1.** Clone the whole repository
-
-**2.** Open R and make sure all the required libraries are installed (see top of the global.R file). If you miss a library, remember you can install it with:
 ```
-ìnstall.packages("shiny")
-```
-
-**3.**
-Then, set the working directory and run the App:
-```
-setwd("my/path/to/the/github/folder/you/downloaded")
 library(shiny)
-runApp()
+runGitHub("holtzy/UKB_geo_application")
 ```
 
+It should install all the requested libraries and launch the application.
 
 
 Citing 
