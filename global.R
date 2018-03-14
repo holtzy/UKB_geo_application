@@ -3,6 +3,9 @@
 # -----------------------------------
 # 1- LOAD LIBRARIES
 
+print("--------------------- Loading libraries -----------------------------")
+
+
 # A function that install packages if not available/installed.
 install_missing_packages = function(pkg, version = NULL, verbose = TRUE){
   availpacks = .packages(all.available = TRUE)
@@ -49,8 +52,15 @@ pkg1 = mapply(install_missing_packages,
               MoreArgs = list(verbose = TRUE), 
               SIMPLIFY = FALSE,
               USE.NAMES = TRUE)
-          
 
+# Load the packages
+for(i in names(deppkgs)){
+  library(i, character.only = TRUE)
+  message(i, " package version:\n", packageVersion(i))
+}
+
+
+print("--------------------- Packages Loaded -----------------------------")
 
 
 
