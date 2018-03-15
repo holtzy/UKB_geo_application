@@ -1,0 +1,26 @@
+load_pkg <- function(){
+
+			library(shiny)
+			library(dplyr)
+			library(tibble)
+			library(ggplot2)
+			library(tidyr)
+			library(shinyWidgets)
+			library(RColorBrewer)
+			library(plotly)
+			library(DT)
+			library(viridis)
+			library(shinycssloaders)
+			library(sp)
+			library(rgdal)
+			library(rgeos)
+			library(leaflet)
+			library(stringr)
+			library(maps)
+			library(mapdata)
+			library(lattice)
+			library(spdep)
+			library(cartogram)
+			library(forcats)
+
+}
