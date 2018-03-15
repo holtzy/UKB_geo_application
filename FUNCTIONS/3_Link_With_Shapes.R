@@ -67,7 +67,7 @@ compute_shape_sumstat = function(input, output){
   library(cartogram)
   
 
-  
+  incProgress(0.1, detail = "Start linking with regions")
 
   
   
@@ -86,8 +86,7 @@ compute_shape_sumstat = function(input, output){
   proj4string(input) <- bng
   
   
-  
-  
+ 
   
   # ----------- REGION LARGE ---------------------------
   
@@ -104,8 +103,8 @@ compute_shape_sumstat = function(input, output){
   
   
   
-  
-  
+  incProgress(0.1, detail = "Aggregation to region OK")
+ 
   
   # ----------- HEXAGONE---------------------------
   
@@ -121,8 +120,8 @@ compute_shape_sumstat = function(input, output){
   GBR_hexa = spTransform(GBR_hexa, CRS("+proj=longlat +datum=WGS84 +no_defs"))
   
   
-  
-  
+   incProgress(0.1, detail = "Aggregation to hexagon OK")
+ 
   
   
   
@@ -138,11 +137,12 @@ compute_shape_sumstat = function(input, output){
   
   # ----------- REGION LARGE ---------------------------
   GBR_region_cartogram = cartogram(GBR_region, "nb_people", itermax=5)
-  
+  incProgress(0.1, detail = "Cartogram region OK")
+ 
   # ----------- HEXAGONE ---------------------------
   GBR_hexa_cartogram = cartogram(GBR_hexa, "nb_people", itermax=5)
   
-
+   incProgress(0.1, detail = "Cartogram hexagone OK")
 
 
   

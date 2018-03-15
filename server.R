@@ -169,27 +169,86 @@ shinyServer(function(input, output, session) {
 		    xlab("") +
 		    theme_minimal() +
 		    theme(legend.position="none", axis.text=element_text(size=13))
+  	})
+
+
+output$barplot2=renderPlot({
+
+	moran_data %>%
+	  		data.frame() %>%
+	  		rownames_to_column(var = "variable") %>%
+	  		mutate(type = ifelse(variable %in% list_PRS, 1, ifelse(variable %in% list_PRS_reg_UKB,2,3 ))) %>%
+	  		mutate( variable = variable %>% gsub(".1kG_residual", "",. ) %>% gsub(".residual", "",. ) ) %>%
+	  		ggplot( aes(x=variable, y=statistic, color=as.factor(type))) +
+	  			geom_point( size=4) +
+	 		    coord_flip() +
+			    ylab("Moran I value") +
+			    xlab("") +
+			    theme_minimal() +
+			    theme(legend.position="none", axis.text=element_text(size=13))
+  	})
+	 			
+
+output$barplot3=renderPlot({
+
+	temp <- moran_data %>%
+	  data.frame() %>%
+	  rownames_to_column(var = "variable") %>%
+	  filter( !grepl("PC",variable)) %>%
+	  mutate(type = 
+	          ifelse(variable %in% list_PRS, "no correction", 
+	          ifelse(variable %in% list_PRS_reg_UKB, "using UKB PCs",
+	          ifelse(variable %in% list_PRS_reg_1KG, "using 1kG PCs",
+	          "nope")))) %>%
+	  mutate( variable = variable %>% gsub(".1kG_residual", "",. ) %>% gsub(".residual", "",. ) %>% gsub(".1kG", "",. ) ) %>%
+	  mutate( variable = fct_reorder(variable, statistic, fun=max) ) 
+
+	extreme <- temp %>%
+	  group_by( variable) %>%
+	  summarize(mymax=max(statistic), mymin=min(statistic)) 
+
+	ggplot() +
+	    geom_segment( data=extreme, aes(x=variable, xend=variable, y=mymin, yend=mymax), color="grey", size=1 )  +
+	    geom_point( data=temp, aes(x=variable, y=statistic, color=as.factor(type)), size=5) +
+	    coord_flip() +
+	    ylab("Moran I value") +
+	    xlab("") +
+	    theme_minimal() +
+	    theme( axis.text=element_text(size=13)) +
+	    labs(color="Type of correction")
 
 
   	})
 
+output$barplot4=renderPlot({
 
-moran_data %>%
-  		data.frame() %>%
-  		rownames_to_column(var = "variable") %>%
-  		mutate(type = ifelse(variable %in% list_PRS, 1, ifelse(variable %in% list_PRS_reg_UKB,2,3 ))) %>%
-  		mutate( variable = variable %>% gsub(".1kG_residual", "",. ) %>% gsub(".residual", "",. ) ) %>%
-  		ggplot( aes(x=variable, y=statistic, color=as.factor(type))) +
-  			geom_point( size=4) +
- 		    coord_flip() +
-		    ylab("Moran I value") +
-		    xlab("") +
-		    theme_minimal() +
-		    theme(legend.position="none", axis.text=element_text(size=13))
- 			
+	temp <- moran_data %>%
+	  data.frame() %>%
+	  rownames_to_column(var = "variable") %>%
+	  filter( variable %in% list_PC_UKB | variable %in% list_PC_1KG ) %>%
+	  mutate(type = 
+	          ifelse(variable %in% list_PC_UKB, "UK Biobank", 
+	          ifelse(variable %in% list_PC_1KG, "1000 Genomes",
+	          "nope"))) %>%
+	  mutate( variable = variable %>% gsub(".1kG", "",. )) %>%
+	  mutate( variable = fct_reorder(variable, statistic, .fun=max ) ) 
+
+	extreme <- temp %>%
+	  group_by( variable) %>%
+	  summarize(mymax=max(statistic), mymin=min(statistic)) 
+
+	ggplot() +
+	    geom_segment( data=extreme, aes(x=variable, xend=variable, y=mymin, yend=mymax), color="grey", size=1 )  +
+	    geom_point( data=temp, aes(x=variable, y=statistic, color=as.factor(type)), size=5) +
+	    coord_flip() +
+	    ylab("Moran I value") +
+	    xlab("") +
+	    theme_minimal() +
+	    theme( axis.text=element_text(size=13)) +
+	    labs(color="PC from:")
 
 
-
+  	})
 
 
 
@@ -600,7 +659,9 @@ moran_data %>%
 			
 			# run the function
 			print("compute data")
-			tmp=compute_shape_sumstat( inFile(), "")
+			withProgress(message = 'Making plot', value = 0, {
+				tmp=compute_shape_sumstat( inFile(), "")
+			})
 			print("ok - data ready")
 			return(tmp)		
 	})
@@ -609,19 +670,21 @@ moran_data %>%
 	# --- Fourth step: compute the moran's value for all the new variables.
 	observeEvent( user_data(), {
 		print("compute moran's statistic")
-		tmp <- compute_autocor( user_data()[[1]] )
-		react_values$moran_df <- rbind( react_values$moran_df, tmp )
+		withProgress(message = 'Morans stat', value = 0, {
+			tmp <- compute_autocor( user_data()[[1]] )
+			react_values$moran_df <- rbind( react_values$moran_df, tmp )
+		})
 		print("added OK")
-		} )	
+	})	
 
 
 	# And show a message that tells if computation is over.
 	output$info_message<- renderUI({ 
 		if(is.null( user_data() )){
-			helpText("pas de user data") 
+			return( helpText("pas de user data") )
 		}else{
-			helpText("Computation done. You're ready to explore your data.") 
-			sendSweetAlert( session = session, title = "Done !!", text = "Your variable are ready to be visualized!", type = "success" )	
+			sendSweetAlert( session = session, title = "Done !!", text = "Your variable are ready to be visualized! Please go to the 'explore' tab now", type = "success" )	
+			return( helpText("Computation done. Please go to the 'explore' tab.") )
 		}
 	})
 

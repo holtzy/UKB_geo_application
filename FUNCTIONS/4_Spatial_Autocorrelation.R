@@ -31,9 +31,11 @@ library(sp)
 library(spdep)
 library(dplyr)
 
+
 # A function that return spatial autocorelation for all the variable of a spatial polygon data frame:
 compute_autocor = function(input){
   
+incProgress(0.1, detail = "Start Moran coeeficient computation")
 
   # Keep only numerical data in input
   input@data = input@data[ , which(sapply(input@data, is.numeric)) ]
@@ -42,16 +44,23 @@ compute_autocor = function(input){
   # make neighbour list object
   nb <- poly2nb(input)
 
+  incProgress(0.1, detail = "Neigbhour list object")
 
   # make spatial weights object. This object cannot b printed
   sp_weights <- nb2listw(nb, style="B", zero.policy=TRUE)
+
 
 
   # moran test
   tmp <- lapply(input@data, moran.mc, sp_weights, nsim=100000, zero.policy = TRUE, na.action=na.omit)
   tmp <- t(simplify2array(tmp))
   tmp <- as.data.frame(tmp[,1:3])
+  incProgress(0.1, detail = "Neigbhour list object")
+
+
   moran_test <- t(do.call(rbind, lapply(tmp, unlist)))
+  
+
   rownames(moran_test) = gsub(".statistic", "", rownames(moran_test))
   return(moran_test)
 }

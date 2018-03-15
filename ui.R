@@ -106,7 +106,7 @@ shinyUI(fluidPage(
 
 		# RIGHT SIDE
 		column(2, align="right",
-			br(), br(), br(), br(),br(), br(), br(), 
+			br(), br(), br(), br(),br(), br(), br(), br(), br(), br(), 
 			h2("Variable"),
 			hr(),
 			h5("We propose to represent the geographical distribution of 126 variables. These veriable are split in several groups: Principal Components (PCs), Polygenic Risk Scores (PRS). To understand how these variable have been computed, visit the method section."),
@@ -117,7 +117,11 @@ shinyUI(fluidPage(
 			h2("Moran's I value"),
 			hr(),
 			h5( strong(a("Moran's I value", style="color:lightblue", href="http://onlinelibrary.wiley.com/doi/10.1111/j.1538-4632.2007.00708.x/abstract;jsessionid=154996FCB55E5EE7CBD2B3B65BC1DB5C.f02t03")), " is a measure of spatial autocorrelation, i.e. a correlation in a signal among nearby locations in space. Click on the plus button below to see what variables are the most clusterised"),
-			dropdownButton( circle = TRUE, icon = icon("plus"), size= "s", width="600px", right=TRUE, up=TRUE, plotOutput("barplot", height="780px"))
+			dropdownButton( circle = TRUE, icon = icon("plus"), size= "s", width="600px", right=TRUE, up=TRUE, 
+				conditionalPanel("input.moranbar == 1", plotOutput("barplot3", height="780px")),
+				conditionalPanel("input.moranbar == 2", plotOutput("barplot4", height="780px")),
+				fluidRow(align="center", radioGroupButtons( "moranbar",label = NULL, choices=c("Traits"=1, "PCs"=2), selected=1 ))
+			)
 		)		
 	),
 	br(), br(),
@@ -367,7 +371,7 @@ shinyUI(fluidPage(
 			br(), 
 			h2("1 - Load your file"),
 			hr(),
-			h5("Your file must be composed by at least 3 columns. The two first columns must be longitude and latitude respectively (use OSGB 1936 projection, as provided in the UKBiobank dataset). All other columns are your variables that must be normalized and centered. Each line is an individual. File can be compressed (.gz). Respect header shown in the example. Column must be separated by spaces. Note that an example file is provided here."),
+			h5("Your file must be composed by at least 3 columns. The two first columns must be longitude and latitude respectively (use OSGB 1936 projection, as provided in the UKBiobank dataset). All other columns are your variables that must be normalized and centered. Each line is an individual. File can be compressed (.gz). Respect header shown in the example. Column must be separated by spaces. Note that an example file is provided", a("here", style="color:lightblue", href="https://github.com/holtzy/UKB_geo_application/blob/master/DATA/toy_dataset.txt",".") ),
 			br(), br()
 		)),
 		

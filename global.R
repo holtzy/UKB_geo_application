@@ -43,7 +43,7 @@ install_missing_packages = function(pkg, version = NULL, verbose = TRUE){
 deppkgs = c(shiny="0.14.2", dplyr="0.7.4", tibble="1.4.2", ggplot2 = "2.2.1.9", tidyr="0.7.2", shinyWidgets="0.4.1", 
 			RColorBrewer="1.1.2", plotly = "4.5.6", DT="0.2", viridis="0.4.0", shinycssloaders="0.2.0", sp="1.2",
 			rgdal="1.2", rgeos="0.3", leaflet="1.1.0", stringr="1.3.0", maps="3.2.0", mapdata="2.2", lattice="0.20",
-			spdep="0.7", cartogram="0.0.2")
+			spdep="0.7", cartogram="0.0.2", forcats="0.3.0")
 
 # Loop on package: check, install, update
 pkg1 = mapply(install_missing_packages,
