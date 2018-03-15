@@ -120,7 +120,7 @@ compute_shape_sumstat = function(input, output){
   GBR_hexa = spTransform(GBR_hexa, CRS("+proj=longlat +datum=WGS84 +no_defs"))
   
   
-   incProgress(0.1, detail = "Aggregation to hexagon OK")
+   incProgress(0.1, detail = "Aggregation to hexagone OK")
  
   
   
@@ -136,11 +136,11 @@ compute_shape_sumstat = function(input, output){
   
   
   # ----------- REGION LARGE ---------------------------
-  GBR_region_cartogram = cartogram(GBR_region, "nb_people", itermax=5)
+  GBR_region_cartogram = cartogram(GBR_region, "nb_people", itermax=1)
   incProgress(0.1, detail = "Cartogram region OK")
  
   # ----------- HEXAGONE ---------------------------
-  GBR_hexa_cartogram = cartogram(GBR_hexa, "nb_people", itermax=5)
+  GBR_hexa_cartogram = cartogram(GBR_hexa, "nb_people", itermax=1)
   
    incProgress(0.1, detail = "Cartogram hexagone OK")
 

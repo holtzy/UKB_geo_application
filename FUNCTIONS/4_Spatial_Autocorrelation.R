@@ -52,7 +52,7 @@ incProgress(0.1, detail = "Start Moran coeeficient computation")
 
 
   # moran test
-  tmp <- lapply(input@data, moran.mc, sp_weights, nsim=100000, zero.policy = TRUE, na.action=na.omit)
+  tmp <- lapply(input@data, moran.mc, sp_weights, nsim=100, zero.policy = TRUE, na.action=na.omit)
   tmp <- t(simplify2array(tmp))
   tmp <- as.data.frame(tmp[,1:3])
   incProgress(0.1, detail = "Neigbhour list object")
