@@ -18,7 +18,9 @@
 
 # 1 - I run this script on Abdel data using these command lines. 
 #load("~/Dropbox/QBI/15_ABDEL_UKB_MAP/UKB_geo_application/DATA/Abdel_data.Rdata")
-#moran_data=compute_autocor(GBR_region)
+#input=GBR_region
+#run the script below
+#moran_data=moran_test
 #save(moran_data, file="~/Dropbox/QBI/15_ABDEL_UKB_MAP/UKB_geo_application/DATA/Spatial_Autocor.Rdata")
 
 # 2 - This function is then called in the shiny app in case a user loads his data

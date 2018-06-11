@@ -25,6 +25,7 @@ print("--------------------- Packages Loaded -----------------------------")
 # Geospatial object (=map boundaries + value of each region):
 load("DATA/Abdel_data.Rdata")
 
+
 # Spatial Autocorrelation values:
 load("DATA/Spatial_Autocor.Rdata")
 # I transform it in a reactive value
@@ -35,14 +36,69 @@ react_values <- reactiveValues(moran_df = moran_data)
 
 
 # -----------------------------------
+# 1- A KEY TO TRANSLATE VARIABLE NAME
+list_PRS=c(
+   "Educational attainment" = "EA2_noUKB" ,                            
+   "Openness" = "openness.GPC.23andme" ,                 
+   "conscientiousness" = "conscientiousness.GPC.23andme"  ,       
+   "Extraversion" = "extraversion.GPC.23andme"    ,          
+   "Agreeableness" = "agreeableness.GPC.23andme"  ,           
+   "Neuroticism" = "neuroticism.GPC.23andme"   ,            
+   "Schizophrenia" = "SCZ2",                                  
+   "Bipolar disorder" = "bipolar" ,                              
+   "Major Depressive Disorder (MDD)" = 	"MDD_PGC2_noUKB",                        
+   "ADHD" = "ADHD_2017",                             
+   "Eating disorder" = "eating_disorder",                       
+   "Alzheimer" = "alzheimer",                             
+   "Autism" = "autism_2017.ipsych.pgc",                
+   "Alcohol consumption" = "alcohol_schumann",                      
+   "Smoking (ever vs never)" = "smoking_ever_vs_never",                 
+   "Smoking (cigarets per day)" = "smoking_cigs_per_day",                  
+   "Smoking (current vs former)" = "smoking_current_vs_former",             
+   "Smoking (age of onset)" = "smoking_age_onset",                     
+   "Cannabis consumption" = "cannabis",                              
+   "Caffeine consumption" = "caffeine",                              
+   "Coronaty artery disease" = "coronary_artery_disease",               
+   "Type II diabetes" = "diagram_T2D",                           
+   "Height" = "height_combined",                       
+   "BMI" = "bmi_combined",                          
+   "Body fat" = "body_fat"
+)
+                             
+list_PRS_reg=c("Educational attainment" = "EA2_noUKB.residual" ,                            
+   "Openness" = "openness.GPC.23andme.residual" ,                 
+   "conscientiousness" = "conscientiousness.GPC.23andme.residual"  ,       
+   "Extraversion" = "extraversion.GPC.23andme.residual"    ,          
+   "Agreeableness" = "agreeableness.GPC.23andme.residual"  ,           
+   "Neuroticism" = "neuroticism.GPC.23andme.residual"   ,            
+   "Schizophrenia" = "SCZ2.residual",                                  
+   "Bipolar disorder" = "bipolar.residual" ,                              
+   "Major Depressive Disorder (MDD)" = 	"MDD_PGC2_noUKB.residual",                        
+   "ADHD" = "ADHD_2017.residual",                             
+   "Eating disorder" = "eating_disorder.residual",                       
+   "Alzheimer" = "alzheimer.residual",                             
+   "Autism" = "autism_2017.ipsych.pgc.residual",                
+   "Alcohol consumption" = "alcohol_schumann.residual",                      
+   "Smoking (ever vs never)" = "smoking_ever_vs_never.residual",                 
+   "Smoking (cigarets per day)" = "smoking_cigs_per_day.residual",                  
+   "Smoking (current vs former)" = "smoking_current_vs_former.residual",             
+   "Smoking (age of onset)" = "smoking_age_onset.residual",                     
+   "Cannabis consumption" = "cannabis.residual",                              
+   "Caffeine consumption" = "caffeine.residual",                              
+   "Coronaty artery disease" = "coronary_artery_disease.residual",               
+   "Type II diabetes" = "diagram_T2D.residual",                           
+   "Height" = "height_combined.residual",                       
+   "BMI" = "bmi_combined.residual",                          
+   "Body fat" = "body_fat.residual"
+)
+
+
+
+
+# -----------------------------------
 # 2- LIST OF VARIABLES
 all=colnames(GBR_region@data)
-list_PC_UKB = all[ grepl("^PC", all ) & !grepl("1kG", all ) ]
-list_PC_1KG = all[ grepl("^PC", all ) & grepl("1kG", all ) ]
-list_PRS_reg_UKB = all[ grepl("\\.residual", all )  ]
-list_PRS_reg_1KG = all[ grepl("_residual", all )  ]
-list_PRS=all[ !all %in% c(list_PC_UKB, list_PC_1KG, list_PRS_reg_UKB, list_PRS_reg_1KG)]
-
+list_PC = all[ grepl("^PC", all ) ]
 
 
 

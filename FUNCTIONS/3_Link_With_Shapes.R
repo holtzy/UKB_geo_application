@@ -25,10 +25,10 @@
 
 # 1 - I run this script on Abdel data using these command lines. The result is several spatial polygon data frames I use as input for the application.
 # Load the individual matrix saved in part1
-#load("/Users/y.holtz/Desktop/ABDEL_DATA/Individual_Matrix_UKB.Rdata")
-#ls()
+# download data from Cluster (/gpfs/gpfs01/polaris/Q0286/UKBiobank/pheno/UKB_geography/for_Yan)
 #load("~/Dropbox/QBI/15_ABDEL_UKB_MAP/UKB_geo_application/DATA/Map_data.Rdata")
-#input=UKB
+#input <- read.table("~/Desktop/TEMP_UKB_ABDEL/UKB.geowebsite.individual_level.polygenic_scores.100PCs.csv.gz", header=T, sep=",")
+#input=na.omit(input)
 #output="/Users/y.holtz/Dropbox/QBI/15_ABDEL_UKB_MAP/UKB_geo_application/DATA/Abdel_data.Rdata"
 
 

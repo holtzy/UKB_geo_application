@@ -86,7 +86,7 @@ shinyServer(function(input, output, session) {
 		# I will remake the map from the beginning if the user change involves change in shape 
 		mydata=mytype()
 		myzoom=myzoom()
-				  
+	  
 		# Final Map
 		leaflet(mydata, options = leafletOptions(zoomControl = TRUE, minZoom = myzoom, maxZoom = 8)) %>% 
 		  	addPolygons( data=mydata , stroke=FALSE, fillColor="transparent" ) 
@@ -102,7 +102,7 @@ shinyServer(function(input, output, session) {
 		req(input$section==1)
 		print("modify main plot")
 		
-		# I get back all the users choice:
+		# I get back all the user choice:
 		mydata=mydata()
 		mystroke=mystroke()
 		variable=input$map_variable
@@ -118,13 +118,12 @@ shinyServer(function(input, output, session) {
 		  		data=mydata, 
 		    	fillColor = ~mypalette(myvector), fillOpacity = 1,  
 		    	stroke=TRUE, color=ifelse(input$map_geo_unit==1, "black", mypalette(myvector) ), weight=mystroke,
-   				highlight = highlightOptions( weight = 5, color = ~mypalette(myvector), dashArray = "", fillOpacity = 0.3, bringToFront = TRUE),
+   				highlight = highlightOptions( weight = 5, color = ~mypalette(myvector), fillOpacity = 0.3, bringToFront = TRUE),
     			label = mytext,
     			labelOptions = labelOptions( style = list("font-weight" = "normal", padding = "3px 8px"), textsize = "13px", direction = "auto")
   			) %>%
   			addLegend( pal = mypalette, values = myvector, opacity=1, title = variable, position = "bottomleft" )
   	})
-	# className = "info2"
 
 
 
@@ -158,8 +157,9 @@ shinyServer(function(input, output, session) {
   	moran_data %>%
   		data.frame() %>%
   		rownames_to_column(var = "variable") %>%
-		filter( ! variable %in%  c( list_PC_1KG, list_PRS_reg_UKB, list_PRS_reg_1KG ) )%>%
+		filter( variable %in%  list_PC ) %>%
 		arrange(statistic) %>%
+		tail(40) %>%
 		mutate(variable=factor(variable, variable)) %>%
 		ggplot( aes(x=variable, y=statistic, fill=statistic)) +
 			geom_bar( stat="identity", width=0.5) +
@@ -172,44 +172,44 @@ shinyServer(function(input, output, session) {
   	})
 
 
-output$barplot2=renderPlot({
-
-	moran_data %>%
-	  		data.frame() %>%
-	  		rownames_to_column(var = "variable") %>%
-	  		mutate(type = ifelse(variable %in% list_PRS, 1, ifelse(variable %in% list_PRS_reg_UKB,2,3 ))) %>%
-	  		mutate( variable = variable %>% gsub(".1kG_residual", "",. ) %>% gsub(".residual", "",. ) ) %>%
-	  		ggplot( aes(x=variable, y=statistic, color=as.factor(type))) +
-	  			geom_point( size=4) +
-	 		    coord_flip() +
-			    ylab("Moran I value") +
-			    xlab("") +
-			    theme_minimal() +
-			    theme(legend.position="none", axis.text=element_text(size=13))
-  	})
+#output$barplot2=renderPlot({
+#	moran_data %>%
+#	  		data.frame() %>%
+#	  		rownames_to_column(var = "variable") %>%
+#			filter( variable %in% c(list_PRS, list_PRS_reg) ) %>%
+#	  		mutate(type = ifelse(variable %in% list_PRS, 1, 2)) %>%
+#	  		mutate( variable_clean = names(list_PRS)[ match( gsub(".residual", "", variable), list_PRS) ] ) %>%
+#	  		arrange( desc(type), statistic) %>%
+#	  		mutate(variable_clean = factor(variable_clean, unique(variable_clean))) %>%
+#	  		ggplot( aes(x=variable_clean, y=statistic, color=as.factor(type))) +
+#	  			geom_point( size=4) +
+#	 		    coord_flip() +
+#			    ylab("Moran I value") +
+#			    xlab("") +
+#			    theme_minimal() +
+#			    theme(legend.position="none", axis.text=element_text(size=13))
+ # 	})
 	 			
 
 output$barplot3=renderPlot({
 
 	temp <- moran_data %>%
-	  data.frame() %>%
-	  rownames_to_column(var = "variable") %>%
-	  filter( !grepl("PC",variable)) %>%
-	  mutate(type = 
-	          ifelse(variable %in% list_PRS, "no correction", 
-	          ifelse(variable %in% list_PRS_reg_UKB, "using UKB PCs",
-	          ifelse(variable %in% list_PRS_reg_1KG, "using 1kG PCs",
-	          "nope")))) %>%
-	  mutate( variable = variable %>% gsub(".1kG_residual", "",. ) %>% gsub(".residual", "",. ) %>% gsub(".1kG", "",. ) ) %>%
-	  mutate( variable = fct_reorder(variable, statistic, fun=max) ) 
+	  	data.frame() %>%
+	  	rownames_to_column(var = "variable") %>%
+	  	filter( variable %in% c(list_PRS, list_PRS_reg) ) %>%
+		mutate( type = ifelse(variable %in% list_PRS, "no correction", "100 PCs correction")) %>%
+	  	mutate( variable_clean = names(list_PRS)[ match( gsub(".residual", "", variable), list_PRS) ] ) %>%
+	  	arrange( type, statistic) %>%
+	  	mutate(variable_clean = factor(variable_clean, unique(variable_clean)))
 
 	extreme <- temp %>%
-	  group_by( variable) %>%
-	  summarize(mymax=max(statistic), mymin=min(statistic)) 
+	  group_by( variable_clean) %>%
+	  summarize( mymax=max(statistic), mymin=min(statistic)) 
 
 	ggplot() +
-	    geom_segment( data=extreme, aes(x=variable, xend=variable, y=mymin, yend=mymax), color="grey", size=1 )  +
-	    geom_point( data=temp, aes(x=variable, y=statistic, color=as.factor(type)), size=5) +
+	    geom_segment( data=extreme, aes(x=variable_clean, xend=variable_clean, y=mymin, yend=mymax), color="grey", size=1, alpha=0.2 )  +
+	    geom_point( data=temp, aes(x=variable_clean, y=statistic, color=type, alpha=type), size=5) +
+	    scale_alpha_manual(values=c(1,0.2), guide = FALSE) +
 	    coord_flip() +
 	    ylab("Moran I value") +
 	    xlab("") +
@@ -217,38 +217,12 @@ output$barplot3=renderPlot({
 	    theme( axis.text=element_text(size=13)) +
 	    labs(color="Type of correction")
 
-
   	})
 
-output$barplot4=renderPlot({
-
-	temp <- moran_data %>%
-	  data.frame() %>%
-	  rownames_to_column(var = "variable") %>%
-	  filter( variable %in% list_PC_UKB | variable %in% list_PC_1KG ) %>%
-	  mutate(type = 
-	          ifelse(variable %in% list_PC_UKB, "UK Biobank", 
-	          ifelse(variable %in% list_PC_1KG, "1000 Genomes",
-	          "nope"))) %>%
-	  mutate( variable = variable %>% gsub(".1kG", "",. )) %>%
-	  mutate( variable = fct_reorder(variable, statistic, .fun=max ) ) 
-
-	extreme <- temp %>%
-	  group_by( variable) %>%
-	  summarize(mymax=max(statistic), mymin=min(statistic)) 
-
-	ggplot() +
-	    geom_segment( data=extreme, aes(x=variable, xend=variable, y=mymin, yend=mymax), color="grey", size=1 )  +
-	    geom_point( data=temp, aes(x=variable, y=statistic, color=as.factor(type)), size=5) +
-	    coord_flip() +
-	    ylab("Moran I value") +
-	    xlab("") +
-	    theme_minimal() +
-	    theme( axis.text=element_text(size=13)) +
-	    labs(color="PC from:")
 
 
-  	})
+
+
 
 
 
@@ -300,7 +274,7 @@ output$barplot4=renderPlot({
 		  	addPolygons( 
 		  		data=mydata, 
 		    	fillColor = ~mypalette(myvector), stroke=TRUE, fillOpacity = 1, color=~mypalette(myvector), weight=mystroke,
-   				highlight = highlightOptions( weight = 5, color = ~mypalette(myvector), dashArray = "", fillOpacity = 0.3, bringToFront = TRUE),
+   				highlight = highlightOptions( weight = 5, color = ~mypalette(myvector), fillOpacity = 0.3, bringToFront = TRUE),
     			label = mytext,
     			labelOptions = labelOptions( style = list("font-weight" = "normal", padding = "3px 8px"), textsize = "13px", direction = "auto")
   			) 
@@ -336,7 +310,7 @@ output$barplot4=renderPlot({
 		  	addPolygons( 
 		  		data=mydata, 
 		    	fillColor = ~mypalette(myvector), stroke=TRUE, fillOpacity = 1, color=~mypalette(myvector), weight=mystroke,
-   				highlight = highlightOptions( weight = 5, color = ~mypalette(myvector), dashArray = "", fillOpacity = 0.3, bringToFront = TRUE),
+   				highlight = highlightOptions( weight = 5, color = ~mypalette(myvector), fillOpacity = 0.3, bringToFront = TRUE),
     			label = mytext,
     			labelOptions = labelOptions( style = list("font-weight" = "normal", padding = "3px 8px"), textsize = "13px", direction = "auto")
   			) 
@@ -370,7 +344,7 @@ output$barplot4=renderPlot({
 		  	addPolygons( 
 		  		data=mydata, 
 		    	fillColor = ~mypalette(myvector), stroke=TRUE, fillOpacity = 1, color=~mypalette(myvector), weight=mystroke,
-   				highlight = highlightOptions( weight = 5, color = ~mypalette(myvector), dashArray = "", fillOpacity = 0.3, bringToFront = TRUE),
+   				highlight = highlightOptions( weight = 5, color = ~mypalette(myvector), fillOpacity = 0.3, bringToFront = TRUE),
     			label = mytext,
     			labelOptions = labelOptions( style = list("font-weight" = "normal", padding = "3px 8px"), textsize = "13px", direction = "auto")
   			) 
@@ -403,7 +377,7 @@ output$barplot4=renderPlot({
 		  	addPolygons( 
 		  		data=mydata, 
 		    	fillColor = ~mypalette(myvector), stroke=TRUE, fillOpacity = 1, color=~mypalette(myvector), weight=mystroke,
-   				highlight = highlightOptions( weight = 5, color = ~mypalette(myvector), dashArray = "", fillOpacity = 0.3, bringToFront = TRUE),
+   				highlight = highlightOptions( weight = 5, color = ~mypalette(myvector), fillOpacity = 0.3, bringToFront = TRUE),
     			label = mytext,
     			labelOptions = labelOptions( style = list("font-weight" = "normal", padding = "3px 8px"), textsize = "13px", direction = "auto")
   			) 
@@ -692,19 +666,19 @@ output$barplot4=renderPlot({
 
 	# --- Last step: the UI buttons must be re-generated when new data are loaded:
 	output$map_variable_button <- renderUI({
-		pickerInput(inputId = "map_variable", label = "", choices = list(User_variables=colnames(inFile())[-c(1)], Polygenic_Risk_Score = list_PRS, PC_from_UKB = list_PC_UKB, PRS_corrected_UKB=list_PRS_reg_UKB, PC_from_1000genome = list_PC_1KG, PRS_corrected_1000genome=list_PRS_reg_1KG  ), selected='PC1')
+		pickerInput(inputId = "map_variable", label = "", choices = list(`User variables`=colnames(inFile())[-c(1)], `Polygenic Risk Score` = list_PRS, `PRS (corrected with PCs)`=list_PRS_reg, PCs = list_PC), selected='PC1')
 	})
 	output$multimap_variable_button1 <- renderUI({
-		pickerInput(inputId = "multimap_variable1", label = "", choices = list(User_variables=colnames(inFile())[-c(1)], Polygenic_Risk_Score = list_PRS, PC_from_UKB = list_PC_UKB, PRS_corrected_UKB=list_PRS_reg_UKB, PC_from_1000genome = list_PC_1KG, PRS_corrected_1000genome=list_PRS_reg_1KG  ), multiple=FALSE, selected="PC1", width="300px")
+		pickerInput(inputId = "multimap_variable1", label = "", choices = list(User_variables=colnames(inFile())[-c(1)], Polygenic_Risk_Score = list_PRS,  PRS_corrected=list_PRS_reg, PCs = list_PC), multiple=FALSE, selected="PC1", width="300px")
 	})
 	output$multimap_variable_button2 <- renderUI({
-		pickerInput(inputId = "multimap_variable2", label = "", choices = list(User_variables=colnames(inFile())[-c(1)], Polygenic_Risk_Score = list_PRS, PC_from_UKB = list_PC_UKB, PRS_corrected_UKB=list_PRS_reg_UKB, PC_from_1000genome = list_PC_1KG, PRS_corrected_1000genome=list_PRS_reg_1KG  ), multiple=FALSE, selected="PC2", width="300px")
+		pickerInput(inputId = "multimap_variable2", label = "", choices = list(User_variables=colnames(inFile())[-c(1)], Polygenic_Risk_Score = list_PRS,  PRS_corrected=list_PRS_reg, PCs = list_PC), multiple=FALSE, selected="PC2", width="300px")
 	})
 	output$multimap_variable_button3 <- renderUI({
-		pickerInput(inputId = "multimap_variable3", label = "", choices = list(User_variables=colnames(inFile())[-c(1)], Polygenic_Risk_Score = list_PRS, PC_from_UKB = list_PC_UKB, PRS_corrected_UKB=list_PRS_reg_UKB, PC_from_1000genome = list_PC_1KG, PRS_corrected_1000genome=list_PRS_reg_1KG  ), multiple=FALSE, selected="PC3", width="300px")
+		pickerInput(inputId = "multimap_variable3", label = "", choices = list(User_variables=colnames(inFile())[-c(1)], Polygenic_Risk_Score = list_PRS,  PRS_corrected=list_PRS_reg, PCs = list_PC), multiple=FALSE, selected="PC3", width="300px")
 	})
 	output$multimap_variable_button4 <- renderUI({
-		pickerInput(inputId = "multimap_variable4", label = "", choices = list(User_variables=colnames(inFile())[-c(1)], Polygenic_Risk_Score = list_PRS, PC_from_UKB = list_PC_UKB, PRS_corrected_UKB=list_PRS_reg_UKB, PC_from_1000genome = list_PC_1KG, PRS_corrected_1000genome=list_PRS_reg_1KG  ), multiple=FALSE, selected="PC4", width="300px")
+		pickerInput(inputId = "multimap_variable4", label = "", choices = list(User_variables=colnames(inFile())[-c(1)], Polygenic_Risk_Score = list_PRS,  PRS_corrected=list_PRS_reg, PCs = list_PC), multiple=FALSE, selected="PC4", width="300px")
 	})		
 
 

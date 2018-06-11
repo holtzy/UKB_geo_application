@@ -119,7 +119,7 @@ shinyUI(fluidPage(
 			h5( strong(a("Moran's I value", style="color:lightblue", href="http://onlinelibrary.wiley.com/doi/10.1111/j.1538-4632.2007.00708.x/abstract;jsessionid=154996FCB55E5EE7CBD2B3B65BC1DB5C.f02t03")), " is a measure of spatial autocorrelation, i.e. a correlation in a signal among nearby locations in space. Click on the plus button below to see what variables are the most clusterised"),
 			dropdownButton( circle = TRUE, icon = icon("plus"), size= "s", width="600px", right=TRUE, up=TRUE, 
 				conditionalPanel("input.moranbar == 1", plotOutput("barplot3", height="780px")),
-				conditionalPanel("input.moranbar == 2", plotOutput("barplot4", height="780px")),
+				conditionalPanel("input.moranbar == 2", plotOutput("barplot", height="780px")),
 				fluidRow(align="center", radioGroupButtons( "moranbar",label = NULL, choices=c("Traits"=1, "PCs"=2), selected=1 ))
 			)
 		)		
