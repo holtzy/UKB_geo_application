@@ -219,10 +219,10 @@ shinyUI(fluidPage(
 		br(),
 		fluidRow(align="center", 
 			column(6, offset=3, plotlyOutput("heatmap", width="850px", height="850px") %>% withSpinner( color= "#2ecc71")),
-			column(1, br(),br(),br(),br(),br(),br(),br(), radioGroupButtons(inputId = "varY_heatmap", label = "", choices = c("PRS (no correction)" = 1, "UKB PCs" = 2, "PRS corrected by UKB"=3, "1000 genome PCs" = 4, "PRS corrected by 1000g"=5  ), selected=2, direction = "vertical") )
+			column(1, br(),br(),br(),br(),br(),br(),br(), radioGroupButtons(inputId = "varY_heatmap", label = "", choices = c("PRS (no correction)" = 1, "PRS corrected by PCs"=2, "PCs" = 3), selected=2, direction = "vertical") )
 		), 
 		fluidRow(align="center", column(4, offset=4, h3(tags$u(tags$b("Figure 4")),": Heatmap displaying the Pearson correlation coefficient between variable. Pick up the group of traits of the Y axis using the right buttons (and use bottom buttons for the X axis)."))),
-		fluidRow(align="center", radioGroupButtons(inputId = "varX_heatmap", label = "", choices = c("PRS (no correction)" = 1, "UKB PCs" = 2, "PRS corrected by UKB"=3, "1000 genome PCs" = 4, "PRS corrected by 1000g"=5  ), selected=2))
+		fluidRow(align="center", radioGroupButtons(inputId = "varX_heatmap", label = "", choices = c("PRS (no correction)" = 1, "PRS corrected by PCs"=2, "PCs" = 3), selected=2))
 
 
 	),
@@ -431,9 +431,9 @@ shinyUI(fluidPage(
 		column(4, offset=4,
 			hr(),
 			br(), br(),
-			"A project by", strong(a("A. Abdellaoui", style="color:lightblue", href="https://www.researchgate.net/profile/Abdel_Abdellaoui")), ",", strong(a("Y. Holtz", style="color:lightblue", href="https://holtzyan.wordpress.com")), "and", strong(a("xxx", style="color:lightblue", href="https://holtzyan.wordpress.com")), ".",
+			"A project by", strong(a("A. Abdellaoui", style="color:lightblue", href="https://www.researchgate.net/profile/Abdel_Abdellaoui")), " et al. Realisation by", strong(a("Y. Holtz", style="color:lightblue", href="https://holtzyan.wordpress.com")),".",
 			br(),
-			"Source code available on", strong(a("Github", style="color:lightblue", href="https://github.com/holtzy/UKB_geo_application")), ".",
+			"Source code available on", strong(a("Github", style="color:lightblue", href="https://github.com/holtzy/UKB_geo_application")),".",
 			br(),
 			"Copyright © 2017 Genes, Geography in the UKB",
 			br(), br(),br()

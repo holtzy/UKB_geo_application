@@ -128,10 +128,18 @@ shinyServer(function(input, output, session) {
 
 
 	# And return a title for this plot
-	output$title_map1<- renderUI({ 
-		mytext=paste( "Geographical distribution of ", input$map_variable, " in the UK", sep="")
+	output$title_map1<- renderUI({
+
+		# Name = if PC, PC, else I have to find the real name
+		if(input$map_variable %in% list_PC)	{ 
+			mytext=paste( "Geographical distribution of ", input$map_variable, " in the UK", sep="")
+		}else{
+			mytext=paste( "Geographical distribution of ", names(list_PRS)[ match( gsub(".residual", "", input$map_variable), list_PRS) ], " in the UK", sep="")
+		}
 		h3( tags$u(tags$b("Figure 1: ")) , mytext )
 	})
+
+
 	output$moran_map1<- renderUI({ 
 		req(input$map_variable != "")
 		variable=input$map_variable
@@ -393,7 +401,8 @@ output$barplot3=renderPlot({
 		my_moran =  temp["statistic"] %>% round(2)
 		my_pval = temp['p.value'] %>%  format.pval(digits=2)
 		mytext=paste( "Moran: ", my_moran, " (p=", my_pval, ")", sep="" )
-		helpText( a(input$multimap_variable1, style="color:#2ecc71; font-size:22px;") , mytext)
+		mytitle <- ifelse(input$multimap_variable1 %in% list_PC, input$multimap_variable1, names(list_PRS)[ match( gsub(".residual", "", input$multimap_variable1), list_PRS) ] )
+		helpText( a(mytitle, style="color:#2ecc71; font-size:22px;") , mytext)
 	})
 
 	output$title_multimap2  <- renderUI({ 
@@ -401,7 +410,8 @@ output$barplot3=renderPlot({
 		my_moran =  temp["statistic"] %>% round(2)
 		my_pval = temp['p.value'] %>%  format.pval(digits=2)
 		mytext=paste( "Moran: ", my_moran, " (p=", my_pval, ")", sep="" )
-		helpText( a(input$multimap_variable2, style="color:#2ecc71; font-size:22px;") , mytext)
+		mytitle <- ifelse(input$multimap_variable2 %in% list_PC, input$multimap_variable2, names(list_PRS)[ match( gsub(".residual", "", input$multimap_variable2), list_PRS) ] )
+		helpText( a(mytitle, style="color:#2ecc71; font-size:22px;") , mytext)
 	})
 
 	output$title_multimap3  <- renderUI({ 
@@ -409,7 +419,8 @@ output$barplot3=renderPlot({
 		my_moran =  temp["statistic"] %>% round(2)
 		my_pval = temp['p.value'] %>%  format.pval(digits=2)
 		mytext=paste( "Moran: ", my_moran, " (p=", my_pval, ")", sep="" )
-		helpText( a(input$multimap_variable3, style="color:#2ecc71; font-size:22px;") , mytext)
+		mytitle <- ifelse(input$multimap_variable3 %in% list_PC, input$multimap_variable3, names(list_PRS)[ match( gsub(".residual", "", input$multimap_variable3), list_PRS) ] )
+		helpText( a(mytitle, style="color:#2ecc71; font-size:22px;") , mytext)
 	})
 
 	output$title_multimap4  <- renderUI({ 
@@ -417,7 +428,8 @@ output$barplot3=renderPlot({
 		my_moran =  temp["statistic"] %>% round(2)
 		my_pval = temp['p.value'] %>%  format.pval(digits=2)
 		mytext=paste( "Moran: ", my_moran, " (p=", my_pval, ")", sep="" )
-		helpText( a(input$multimap_variable4, style="color:#2ecc71; font-size:22px;") , mytext)
+		mytitle <- ifelse(input$multimap_variable4 %in% list_PC, input$multimap_variable4, names(list_PRS)[ match( gsub(".residual", "", input$multimap_variable4), list_PRS) ] )
+		helpText( a(mytitle, style="color:#2ecc71; font-size:22px;") , mytext)
 	})
 
 
@@ -524,6 +536,8 @@ output$barplot3=renderPlot({
 	
 	#})
 
+
+
 	output$heatmap=renderPlotly({
   		
   		# Do it only if the user is in the 'compare' tab
@@ -537,7 +551,7 @@ output$barplot3=renderPlot({
 		diag(mycor)=NA
 
 		# Keep only fields that interest user
-		mylist=list(list_PRS, list_PC_UKB , list_PRS_reg_UKB , list_PC_1KG ,  list_PRS_reg_1KG)
+		mylist=list(list_PRS, list_PRS_reg, list_PC)
 		row_to_keep = which( rownames(mycor) %in% mylist[[as.numeric(input$varX_heatmap)]] )
 		col_to_keep = which( rownames(mycor) %in% mylist[[as.numeric(input$varY_heatmap)]] )
 		mycor=mycor[ row_to_keep, col_to_keep ]
@@ -547,8 +561,8 @@ output$barplot3=renderPlot({
 			as.data.frame() %>% 
 			rownames_to_column("var1") %>% 
 			gather(var2, value, -1) %>%
-			mutate( var1 = var1 %>% gsub(".1kG_residual", "",. ) %>% gsub(".residual", "",. )  ) %>%
-			mutate( var2 = var2 %>% gsub(".1kG_residual", "",. ) %>% gsub(".residual", "",. )  ) 
+			mutate( var1 = ifelse(var1 %in% list_PC, var1, names(list_PRS)[ match( gsub(".residual", "", var1), list_PRS) ] ) ) %>%				#Use the key to retrieve the proper name
+			mutate( var2 = ifelse(var2 %in% list_PC, var2, names(list_PRS)[ match( gsub(".residual", "", var2), list_PRS) ] )  ) 
 
 		# Make the plot
 		p <- don %>%  
@@ -557,7 +571,7 @@ output$barplot3=renderPlot({
 			#scale_fill_gradient(low = "white", high = "steelblue", breaks=c(0, .2, .4, .6, .8, 1), labels=c(0, .2, .4, .6, .8, 1) ) +
 			scale_fill_distiller(palette = "PRGn") +
 			theme_grey(base_size = 9) + 
-			labs(x = "Exposure", y = "Outcome") + 
+			labs(x = "", y = "") + 
 			scale_x_discrete(expand = c(0, 0)) +
 			scale_y_discrete(expand = c(0, 0)) + 
 			theme(
@@ -669,16 +683,16 @@ output$barplot3=renderPlot({
 		pickerInput(inputId = "map_variable", label = "", choices = list(`User variables`=colnames(inFile())[-c(1)], `Polygenic Risk Score` = list_PRS, `PRS (corrected with PCs)`=list_PRS_reg, PCs = list_PC), selected='PC1')
 	})
 	output$multimap_variable_button1 <- renderUI({
-		pickerInput(inputId = "multimap_variable1", label = "", choices = list(User_variables=colnames(inFile())[-c(1)], Polygenic_Risk_Score = list_PRS,  PRS_corrected=list_PRS_reg, PCs = list_PC), multiple=FALSE, selected="PC1", width="300px")
+		pickerInput(inputId = "multimap_variable1", label = "", choices = list(`User variables`=colnames(inFile())[-c(1)], `Polygenic Risk Score` = list_PRS,  `PRS (corrected with PCs)`=list_PRS_reg, PCs = list_PC), multiple=FALSE, selected="PC1", width="300px")
 	})
 	output$multimap_variable_button2 <- renderUI({
-		pickerInput(inputId = "multimap_variable2", label = "", choices = list(User_variables=colnames(inFile())[-c(1)], Polygenic_Risk_Score = list_PRS,  PRS_corrected=list_PRS_reg, PCs = list_PC), multiple=FALSE, selected="PC2", width="300px")
+		pickerInput(inputId = "multimap_variable2", label = "", choices = list(`User variables`=colnames(inFile())[-c(1)], `Polygenic Risk Score` = list_PRS,  `PRS (corrected with PCs)`=list_PRS_reg, PCs = list_PC), multiple=FALSE, selected="PC2", width="300px")
 	})
 	output$multimap_variable_button3 <- renderUI({
-		pickerInput(inputId = "multimap_variable3", label = "", choices = list(User_variables=colnames(inFile())[-c(1)], Polygenic_Risk_Score = list_PRS,  PRS_corrected=list_PRS_reg, PCs = list_PC), multiple=FALSE, selected="PC3", width="300px")
+		pickerInput(inputId = "multimap_variable3", label = "", choices = list(`User variables`=colnames(inFile())[-c(1)], `Polygenic Risk Score` = list_PRS,  `PRS (corrected with PCs)`=list_PRS_reg, PCs = list_PC), multiple=FALSE, selected="PC3", width="300px")
 	})
 	output$multimap_variable_button4 <- renderUI({
-		pickerInput(inputId = "multimap_variable4", label = "", choices = list(User_variables=colnames(inFile())[-c(1)], Polygenic_Risk_Score = list_PRS,  PRS_corrected=list_PRS_reg, PCs = list_PC), multiple=FALSE, selected="PC4", width="300px")
+		pickerInput(inputId = "multimap_variable4", label = "", choices = list(`User variables`=colnames(inFile())[-c(1)], `Polygenic Risk Score` = list_PRS,  `PRS (corrected with PCs)`=list_PRS_reg, PCs = list_PC), multiple=FALSE, selected="PC4", width="300px")
 	})		
 
 
@@ -695,6 +709,10 @@ output$barplot3=renderPlot({
 	# --- A flag that tells if user data is available or not
 	output$flagOK <- reactive( !is.null(user_data()) )
 	outputOptions(output, 'flagOK', suspendWhenHidden=FALSE)
+
+
+
+
 
 
 
