@@ -122,7 +122,7 @@ shinyServer(function(input, output, session) {
     			label = mytext,
     			labelOptions = labelOptions( style = list("font-weight" = "normal", padding = "3px 8px"), textsize = "13px", direction = "auto")
   			) %>%
-  			addLegend( pal = mypalette, values = myvector, opacity=1, title = variable, position = "bottomleft" )
+  			addLegend( pal = mypalette, values = myvector, opacity=1, title = '', position = "bottomleft" )
   	})
 
 
@@ -131,11 +131,16 @@ shinyServer(function(input, output, session) {
 	output$title_map1<- renderUI({
 
 		# Name = if PC, PC, else I have to find the real name
+		print("---")
+		print(input$map_variable)
 		if(input$map_variable %in% list_PC)	{ 
-			mytext=paste( "Geographical distribution of ", input$map_variable, " in the UK", sep="")
+			myvar <- input$map_variable
 		}else{
-			mytext=paste( "Geographical distribution of ", names(list_PRS)[ match( gsub(".residual", "", input$map_variable), list_PRS) ], " in the UK", sep="")
+			myvar <- names(list_PRS)[ match( gsub(".residual", "", input$map_variable), list_PRS) ]
 		}
+		print(myvar)
+		if(is.na(myvar)){print("isNA") ; myvar=input$map_variable}
+		mytext=paste( "Geographical distribution of ", myvar, " in the UK", sep="")
 		h3( tags$u(tags$b("Figure 1: ")) , mytext )
 	})
 
@@ -160,7 +165,7 @@ shinyServer(function(input, output, session) {
   # ------------------------------------------------------------------------------
 	
 
-  output$barplot=renderPlot({ 
+  output$barplotPC=renderPlot({ 
 
   	moran_data %>%
   		data.frame() %>%
@@ -180,26 +185,10 @@ shinyServer(function(input, output, session) {
   	})
 
 
-#output$barplot2=renderPlot({
-#	moran_data %>%
-#	  		data.frame() %>%
-#	  		rownames_to_column(var = "variable") %>%
-#			filter( variable %in% c(list_PRS, list_PRS_reg) ) %>%
-#	  		mutate(type = ifelse(variable %in% list_PRS, 1, 2)) %>%
-#	  		mutate( variable_clean = names(list_PRS)[ match( gsub(".residual", "", variable), list_PRS) ] ) %>%
-#	  		arrange( desc(type), statistic) %>%
-#	  		mutate(variable_clean = factor(variable_clean, unique(variable_clean))) %>%
-#	  		ggplot( aes(x=variable_clean, y=statistic, color=as.factor(type))) +
-#	  			geom_point( size=4) +
-#	 		    coord_flip() +
-#			    ylab("Moran I value") +
-#			    xlab("") +
-#			    theme_minimal() +
-#			    theme(legend.position="none", axis.text=element_text(size=13))
- # 	})
+
 	 			
 
-output$barplot3=renderPlot({
+output$barplotPRS=renderPlot({
 
 	temp <- moran_data %>%
 	  	data.frame() %>%
@@ -222,7 +211,7 @@ output$barplot3=renderPlot({
 	    ylab("Moran I value") +
 	    xlab("") +
 	    theme_minimal() +
-	    theme( axis.text=element_text(size=13)) +
+	    theme( axis.text=element_text(size=13), legend.position = "top") +
 	    labs(color="Type of correction")
 
   	})
@@ -447,8 +436,8 @@ output$barplot3=renderPlot({
 	
 
 	# 2 input selector for X and Y axis
-	output$choice_X_scatter<- renderUI({ 		pickerInput(inputId = "Xaxis_scatter", label = "X axis", choices = list(User_variables=colnames(inFile())[-c(1)], Polygenic_Risk_Score = list_PRS, PC_from_UKB = list_PC_UKB, PRS_corrected_UKB=list_PRS_reg_UKB, PC_from_1000genome = list_PC_1KG, PRS_corrected_1000genome=list_PRS_reg_1KG  ), multiple=FALSE, selected="PC1", width="300px") })
-	output$choice_Y_scatter<- renderUI({ 		pickerInput(inputId = "Yaxis_scatter", label = "Y axis", choices = list(User_variables=colnames(inFile())[-c(1)], Polygenic_Risk_Score = list_PRS, PC_from_UKB = list_PC_UKB, PRS_corrected_UKB=list_PRS_reg_UKB, PC_from_1000genome = list_PC_1KG, PRS_corrected_1000genome=list_PRS_reg_1KG  ), multiple=FALSE, selected="PC2", width="300px") })
+	output$choice_X_scatter<- renderUI({ 		pickerInput(inputId = "Xaxis_scatter", label = "X axis", choices = list(`User variables`=colnames(inFile())[-c(1)], `Polygenic Risk Score` = list_PRS, `PRS (corrected with PCs)`=list_PRS_reg, PCs = list_PC), multiple=FALSE, selected="PC1", width="300px") })
+	output$choice_Y_scatter<- renderUI({ 		pickerInput(inputId = "Yaxis_scatter", label = "Y axis", choices = list(`User variables`=colnames(inFile())[-c(1)], `Polygenic Risk Score` = list_PRS, `PRS (corrected with PCs)`=list_PRS_reg, PCs = list_PC), multiple=FALSE, selected="PC2", width="300px") })
 
 
   	output$scatter=renderPlotly({ 
@@ -472,6 +461,10 @@ output$barplot3=renderPlot({
   		tmp$varx=tmp[ , input$Xaxis_scatter]
   		tmp$vary=tmp[ , input$Yaxis_scatter]
 
+  		# Recover real names
+  		myxlab <- ifelse(input$Xaxis_scatter %in% list_PC, input$Xaxis_scatter, names(list_PRS)[ match( gsub(".residual", "", input$Xaxis_scatter), list_PRS) ] ) 
+  		myylab <- ifelse(input$Yaxis_scatter %in% list_PC, input$Yaxis_scatter, names(list_PRS)[ match( gsub(".residual", "", input$Yaxis_scatter), list_PRS) ] )
+
   		# Prepare text
 		tmp$text=paste( tmp$geo_label, "\n", input$Xaxis_scatter, ": ", round(tmp$varx, 2), "\n", input$Yaxis_scatter, ": ", round(tmp$vary, 2), "\n", "Number of individual:", tmp$nb_people, sep="")
 
@@ -487,8 +480,8 @@ output$barplot3=renderPlot({
   			scale_color_viridis() +
   			theme_bw() +
   			theme(legend.position = "none") +
-  			xlab(input$Xaxis_scatter) + 
-  			ylab(input$Yaxis_scatter) +
+  			xlab(myxlab) + 
+  			ylab(myylab ) +
   			ggtitle(paste("Correlation: ", clean_cor, " (p: ", clean_pval, ")", sep=""))
 
 
@@ -533,7 +526,6 @@ output$barplot3=renderPlot({
 		# graphic
 	#	d3heatmap(mycor, color = "Blues")
 
-	
 	#})
 
 
@@ -555,6 +547,18 @@ output$barplot3=renderPlot({
 		row_to_keep = which( rownames(mycor) %in% mylist[[as.numeric(input$varX_heatmap)]] )
 		col_to_keep = which( rownames(mycor) %in% mylist[[as.numeric(input$varY_heatmap)]] )
 		mycor=mycor[ row_to_keep, col_to_keep ]
+		#print(dim(mycor))
+		#print(head(mycor))
+
+		# Order after clustering
+		ord <- hclust(as.dist(1-mycor), method = "ward.D")$order
+		#print("ord1")
+		#print(ord)
+		#print(length(ord))
+		ord2 <- hclust(dist(t(mycor)), method = "ward.D")$order
+		#print("ord2")
+		#print(ord2)
+		#print(length(ord2))
 
 		# Make a long format for ggplot2
 		don <- mycor %>% 
@@ -562,11 +566,17 @@ output$barplot3=renderPlot({
 			rownames_to_column("var1") %>% 
 			gather(var2, value, -1) %>%
 			mutate( var1 = ifelse(var1 %in% list_PC, var1, names(list_PRS)[ match( gsub(".residual", "", var1), list_PRS) ] ) ) %>%				#Use the key to retrieve the proper name
-			mutate( var2 = ifelse(var2 %in% list_PC, var2, names(list_PRS)[ match( gsub(".residual", "", var2), list_PRS) ] )  ) 
+			mutate( var2 = ifelse(var2 %in% list_PC, var2, names(list_PRS)[ match( gsub(".residual", "", var2), list_PRS) ] ) ) %>%
+			mutate( var2 = factor(var2, levels=unique(var2)[ord2] ) ) %>%
+			mutate( var1 = factor(var1, levels=unique(var1)[ord] ) )
+
+		print(head(don))
+		# Text for tooltip
+		don <- don %>% mutate( text=paste0("row: ", var2, "\ncolumn: ", var1, "\nCorrelation: ", round(value,2)))
 
 		# Make the plot
 		p <- don %>%  
-		  ggplot(aes( x=var1, y=var2)) + 
+		  ggplot(aes( x=var1, y=var2, text=text)) + 
 			geom_tile(aes(fill = value), colour = "white", size=4) + 
 			#scale_fill_gradient(low = "white", high = "steelblue", breaks=c(0, .2, .4, .6, .8, 1), labels=c(0, .2, .4, .6, .8, 1) ) +
 			scale_fill_distiller(palette = "PRGn") +
@@ -584,7 +594,7 @@ output$barplot3=renderPlot({
 			)
 
 		# Plotly call
-		ggplotly(p)
+		ggplotly(p, tooltip="text")
 
 
 	})

@@ -82,7 +82,7 @@ shinyUI(fluidPage(
 			br(), br(), br(), br(),br(), br(), br(), br(),br(), br(), br(), br(),
 			h2("Welcome"),
 			hr(),
-			h5("This application describes the geographical distribution of several variable of the ", strong(a("UK Biobank dataset", style="color:lightblue", href="http://www.ukbiobank.ac.uk")), "(n=502630)."),
+			h5("This application describes the geographical distribution of several variable of the ", strong(a("UK Biobank dataset", style="color:lightblue", href="http://www.ukbiobank.ac.uk")), "(n=456,426)."),
 			br(),
 			h5("More than 100 variables are available for visualization. You can observe them using different geographical units. It is possible to custom and export this map following the surrounding buttons. Use the compare tab above if you want to study the relationship between several variables."),
 			br(), br(), br(),br(), br(), br(), br()
@@ -109,17 +109,17 @@ shinyUI(fluidPage(
 			br(), br(), br(), br(),br(), br(), br(), br(), br(), br(), 
 			h2("Variable"),
 			hr(),
-			h5("We propose to represent the geographical distribution of 126 variables. These veriable are split in several groups: Principal Components (PCs), Polygenic Risk Scores (PRS). To understand how these variable have been computed, visit the method section."),
+			h5("We offer to represent the geographical distribution of 150 variables. These veriable are split in several groups: Principal Components (PCs) and Polygenic Risk Scores (PRS). To understand how these variable have been computed, visit the method section."),
 			uiOutput("map_variable_button")
 		),
 		column(2, align="right",
 			br(), br(),
 			h2("Moran's I value"),
 			hr(),
-			h5( strong(a("Moran's I value", style="color:lightblue", href="http://onlinelibrary.wiley.com/doi/10.1111/j.1538-4632.2007.00708.x/abstract;jsessionid=154996FCB55E5EE7CBD2B3B65BC1DB5C.f02t03")), " is a measure of spatial autocorrelation, i.e. a correlation in a signal among nearby locations in space. Click on the plus button below to see what variables are the most clusterised"),
+			h5( strong(a("Moran's I value", style="color:lightblue", href="http://onlinelibrary.wiley.com/doi/10.1111/j.1538-4632.2007.00708.x/abstract;jsessionid=154996FCB55E5EE7CBD2B3B65BC1DB5C.f02t03")), " is a measure of spatial autocorrelation, i.e. a correlation in a signal among nearby locations in space. Click on the plus button below to see what variables are the most clusterised."),
 			dropdownButton( circle = TRUE, icon = icon("plus"), size= "s", width="600px", right=TRUE, up=TRUE, 
-				conditionalPanel("input.moranbar == 1", plotOutput("barplot3", height="780px")),
-				conditionalPanel("input.moranbar == 2", plotOutput("barplot", height="780px")),
+				conditionalPanel("input.moranbar == 1", plotOutput("barplotPRS", height="780px")),
+				conditionalPanel("input.moranbar == 2", plotOutput("barplotPC", height="780px")),
 				fluidRow(align="center", radioGroupButtons( "moranbar",label = NULL, choices=c("Traits"=1, "PCs"=2), selected=1 ))
 			)
 		)		
@@ -142,7 +142,7 @@ shinyUI(fluidPage(
 	# #########
 	conditionalPanel("input.section == 3",
 
-		fluidRow(column(4, offset=4, align="center", h5("This section aims to compare the geographical distribution of two or more variables. Select as many variable as you like, one map will appear for each. Moreover, scroll to the bottom of this page to check the scatterplot matrix and correlation estimates of each pair."))),
+		fluidRow(column(4, offset=4, align="center", h5("This section aims to compare the geographical distribution of several variables. Select up to 4 variables to compare them. Moreover, scroll to the bottom of this page to check the scatterplot matrix and correlation estimates of each pair."))),
 		br(), br(), br(),
 
 		# And now the 4 maps
