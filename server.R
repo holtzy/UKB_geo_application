@@ -36,7 +36,7 @@ shinyServer(function(input, output, session) {
   	})
 
 	# What is the subsequent zoom? and stroke? and center part of the map?
-  	myzoom=reactive({  ifelse(input$map_geo_unit!=3, return(5.7), return(6) ) 	})
+  	myzoom=reactive({  ifelse(input$map_geo_unit!=3, return(5.4), return(6) ) 	})
   	mystroke=reactive({  ifelse(input$map_geo_unit!=3, return(1), return(3) ) 	})
 
 	# What is the vector of value we are going to plot
@@ -131,14 +131,11 @@ shinyServer(function(input, output, session) {
 	output$title_map1<- renderUI({
 
 		# Name = if PC, PC, else I have to find the real name
-		print("---")
-		print(input$map_variable)
 		if(input$map_variable %in% list_PC)	{ 
 			myvar <- input$map_variable
 		}else{
 			myvar <- names(list_PRS)[ match( gsub(".residual", "", input$map_variable), list_PRS) ]
 		}
-		print(myvar)
 		if(is.na(myvar)){print("isNA") ; myvar=input$map_variable}
 		mytext=paste( "Geographical distribution of ", myvar, " in the UK", sep="")
 		h3( tags$u(tags$b("Figure 1: ")) , mytext )
@@ -391,8 +388,10 @@ output$barplotPRS=renderPlot({
 		my_pval = temp['p.value'] %>%  format.pval(digits=2)
 		mytext=paste( "Moran: ", my_moran, " (p=", my_pval, ")", sep="" )
 		mytitle <- ifelse(input$multimap_variable1 %in% list_PC, input$multimap_variable1, names(list_PRS)[ match( gsub(".residual", "", input$multimap_variable1), list_PRS) ] )
+		if(is.na(mytitle)){ mytitle=input$multimap_variable1 }
 		helpText( a(mytitle, style="color:#2ecc71; font-size:22px;") , mytext)
 	})
+
 
 	output$title_multimap2  <- renderUI({ 
 		temp <- react_values$moran_df[ which(rownames(react_values$moran_df)==input$multimap_variable2), ]
@@ -400,6 +399,7 @@ output$barplotPRS=renderPlot({
 		my_pval = temp['p.value'] %>%  format.pval(digits=2)
 		mytext=paste( "Moran: ", my_moran, " (p=", my_pval, ")", sep="" )
 		mytitle <- ifelse(input$multimap_variable2 %in% list_PC, input$multimap_variable2, names(list_PRS)[ match( gsub(".residual", "", input$multimap_variable2), list_PRS) ] )
+		if(is.na(mytitle)){ mytitle=input$multimap_variable2 }
 		helpText( a(mytitle, style="color:#2ecc71; font-size:22px;") , mytext)
 	})
 
@@ -409,6 +409,7 @@ output$barplotPRS=renderPlot({
 		my_pval = temp['p.value'] %>%  format.pval(digits=2)
 		mytext=paste( "Moran: ", my_moran, " (p=", my_pval, ")", sep="" )
 		mytitle <- ifelse(input$multimap_variable3 %in% list_PC, input$multimap_variable3, names(list_PRS)[ match( gsub(".residual", "", input$multimap_variable3), list_PRS) ] )
+		if(is.na(mytitle)){ mytitle=input$multimap_variable3 }
 		helpText( a(mytitle, style="color:#2ecc71; font-size:22px;") , mytext)
 	})
 
@@ -418,9 +419,9 @@ output$barplotPRS=renderPlot({
 		my_pval = temp['p.value'] %>%  format.pval(digits=2)
 		mytext=paste( "Moran: ", my_moran, " (p=", my_pval, ")", sep="" )
 		mytitle <- ifelse(input$multimap_variable4 %in% list_PC, input$multimap_variable4, names(list_PRS)[ match( gsub(".residual", "", input$multimap_variable4), list_PRS) ] )
+		if(is.na(mytitle)){ mytitle=input$multimap_variable4 }
 		helpText( a(mytitle, style="color:#2ecc71; font-size:22px;") , mytext)
 	})
-
 
 
 

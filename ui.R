@@ -10,6 +10,10 @@
 shinyUI(fluidPage(
 
 
+    # Load a different font for the app
+    tags$head(
+      tags$link(rel="stylesheet", type = "text/css", href = "https://fonts.googleapis.com/css?family=Source+Sans+Pro")
+    ),
 	
 	# This is to explain you have a CSS file that custom the appearance of the app
 	includeCSS("www/style.css") ,
@@ -22,7 +26,7 @@ shinyUI(fluidPage(
 	fluidRow( align="center",
 		br(),
 		helpText(
-			strong("Genes & Geography in great britain", style="color:black; font-size:30pt")
+			strong("Genes & Geography in Great Britain", style="color:black; font-size:30pt")
 		)
 	),
 	fluidRow( align="center",
@@ -36,7 +40,7 @@ shinyUI(fluidPage(
 			
 				h2("Geographical Unit"),
 				hr(),
-				h5("We propose to work at 3 different geographical scales. This will divide UK in 414, 1k and 10k units respectively. You can also choose your resolution. Better resolution allows to zoom on the map, but a waiting time will be necessary. Click the + button for this option."),
+				h5("We offer to work at 3 different geographical scales. This will divide UK in 414, 1k and 10k units respectively. You can also choose your resolution. Better resolution allows to zoom on the map, but a waiting time will be necessary. Click the + button for this option."),
 				selectInput(inputId = "map_geo_unit", label = "", choices = c("Region"=1, "Hexagones"=3) ),
 				br(), br(),
 				
@@ -82,9 +86,9 @@ shinyUI(fluidPage(
 			br(), br(), br(), br(),br(), br(), br(), br(),br(), br(), br(), br(),
 			h2("Welcome"),
 			hr(),
-			h5("This application describes the geographical distribution of several variable of the ", strong(a("UK Biobank dataset", style="color:lightblue", href="http://www.ukbiobank.ac.uk")), "(n=456,426)."),
+			h5("This application describes the geographical distribution of a wide range of genetic variables derived from the ", strong(a("UK Biobank dataset", href="http://www.ukbiobank.ac.uk")), "(N=456,426)."),
 			br(),
-			h5("More than 100 variables are available for visualization. You can observe them using different geographical units. It is possible to custom and export this map following the surrounding buttons. Use the compare tab above if you want to study the relationship between several variables."),
+			h5("We included over 100 variables for visualization. Feel free to play around with the buttons on the right to customize and export the visualizations. Use the compare tab above to explore the relationship between these genetic variables."),
 			br(), br(), br(),br(), br(), br(), br()
 		),
 
@@ -106,17 +110,17 @@ shinyUI(fluidPage(
 
 		# RIGHT SIDE
 		column(2, align="right",
-			br(), br(), br(), br(),br(), br(), br(), br(), br(), br(), 
-			h2("Variable"),
+			br(), br(), br(), br(),br(), br(), br(), br(),
+			h2("Genetic Variables"),
 			hr(),
-			h5("We offer to represent the geographical distribution of 150 variables. These veriable are split in several groups: Principal Components (PCs) and Polygenic Risk Scores (PRS). To understand how these variable have been computed, visit the method section."),
+			h5("Below you can choose to visualize the geographical distribution of 25 genetic variables and 100 principal components (PCs) that reflect ancestry differences within the UK. Polygenic scores have been corrected for the 100 PCs. See the method section for details on how these variables have been computed."),
 			uiOutput("map_variable_button")
 		),
 		column(2, align="right",
 			br(), br(),
-			h2("Moran's I value"),
+			h2("Moran's I"),
 			hr(),
-			h5( strong(a("Moran's I value", style="color:lightblue", href="http://onlinelibrary.wiley.com/doi/10.1111/j.1538-4632.2007.00708.x/abstract;jsessionid=154996FCB55E5EE7CBD2B3B65BC1DB5C.f02t03")), " is a measure of spatial autocorrelation, i.e. a correlation in a signal among nearby locations in space. Click on the plus button below to see what variables are the most clusterised."),
+			h5( strong(a("Moran's I",  href="http://onlinelibrary.wiley.com/doi/10.1111/j.1538-4632.2007.00708.x/abstract;jsessionid=154996FCB55E5EE7CBD2B3B65BC1DB5C.f02t03")), " Moran's I is a measure of spatial autocorrelation, i.e., the degree to which values are clustered together in geographic space. Like regular correlations, the values of Moran’s I range from -1 (dispersed) to 0 (randomly distributed) to 1 (clustered together). Click on the plus button below to see a ranking of the genetic variables based on their Moran’s I."),
 			dropdownButton( circle = TRUE, icon = icon("plus"), size= "s", width="600px", right=TRUE, up=TRUE, 
 				conditionalPanel("input.moranbar == 1", plotOutput("barplotPRS", height="780px")),
 				conditionalPanel("input.moranbar == 2", plotOutput("barplotPC", height="780px")),
@@ -135,14 +139,12 @@ shinyUI(fluidPage(
 
 
 
-
-
 	# #########
 	#	TAB  (COMPARE)
 	# #########
 	conditionalPanel("input.section == 3",
 
-		fluidRow(column(4, offset=4, align="center", h5("This section aims to compare the geographical distribution of several variables. Select up to 4 variables to compare them. Moreover, scroll to the bottom of this page to check the scatterplot matrix and correlation estimates of each pair."))),
+		fluidRow(column(4, offset=4, align="center", h5("In this section, you can compare the geographical distribution of several genetic variables. Select up to four variables to visualize next to each other below. Scroll further down this page to inspect the scatterplot matrix and correlation estimates between every pair of genetic variables."))),
 		br(), br(), br(),
 
 		# And now the 4 maps
@@ -212,11 +214,11 @@ shinyUI(fluidPage(
 		br(),
 		fluidRow( align="center", 
 			column(4, offset=4, 
+				br(),
 				hr(), 
-				h5("In case you would be looking for the highest or lowest relationships, here is an heatmap displaying all of them")
+				h5("Correlation between genetic traits")
 			)
 		),
-		br(),
 		fluidRow(align="center", 
 			column(6, offset=3, plotlyOutput("heatmap", width="850px", height="850px") %>% withSpinner( color= "#2ecc71")),
 			column(1, br(),br(),br(),br(),br(),br(),br(), radioGroupButtons(inputId = "varY_heatmap", label = "", choices = c("PRS (no correction)" = 1, "PRS corrected by PCs"=2, "PCs" = 3), selected=2, direction = "vertical") )
@@ -253,9 +255,9 @@ shinyUI(fluidPage(
 		)),
 		fluidRow(column(6, offset=3, align="justify",
 			h5("The first law of geography states that everything is related to everything else, but ", strong(a("near things are more
-			related than distant things", style="color:lightblue", href="https://www.jstor.org/stable/143141?seq=1#page_scan_tab_contents")), ". Humans living near each other are more related and tend to share more
+			related than distant things",  href="https://www.jstor.org/stable/143141?seq=1#page_scan_tab_contents")), ". Humans living near each other are more related and tend to share more
 			DNA sequence than distant human beings, which is reflected in ", strong(a("genome-wide allele frequency
-			differences", style="color:lightblue", href="https://www.nature.com/articles/nature07331")), " on a global scale as well as on a finer scales. 3-5 This clustering on ancestry is a result of
+			differences",  href="https://www.nature.com/articles/nature07331")), " on a global scale as well as on a finer scales. 3-5 This clustering on ancestry is a result of
 			historic population movements, genetic drift, natural selection, and/or admixture. We examine
 			geographic distributions of ancestry and functional genetic variation in the United Kingdom (UK).")
 		)),
@@ -269,7 +271,7 @@ shinyUI(fluidPage(
 			hr()
 		)),
 		fluidRow(column(6, offset=3, align="justify",
-			h5("The participants of this study come from ", strong(a("UK Biobank (UKB)", style="color:lightblue", href="https://www.biorxiv.org/content/early/2017/07/20/166298")), ", which has received ethical approval from
+			h5("The participants of this study come from ", strong(a("UK Biobank (UKB)",  href="https://www.biorxiv.org/content/early/2017/07/20/166298")), ", which has received ethical approval from
 			the National Health Service North West Centre for Research Ethics Committee (reference:
 			11/NW/0382). A total of 502,655 participants aged between 37 and 73 years old were recruited in the
 			UK between 2006 and 2010. They underwent a wide range of cognitive, health, and lifestyle
@@ -286,8 +288,8 @@ shinyUI(fluidPage(
 		)),
 		fluidRow(column(6, offset=3, align="justify",
 			h5("To capture British ancestry, we first excluded individuals with non-European ancestry. Ancestry was
-			determined using Principal Component Analysis (PCA) in", strong(a("GCTA", style="color:lightblue", href="https://www.ncbi.nlm.nih.gov/pubmed/21167468")), ". The UKB dataset was projected onto the
-			first two principle components (PCs) from the 2,504 participants of the 1000 Genomes Project (", strong(a("ref", style="color:lightblue", href="https://www.ncbi.nlm.nih.gov/pubmed/26432245")), "), using
+			determined using Principal Component Analysis (PCA) in", strong(a("GCTA",  href="https://www.ncbi.nlm.nih.gov/pubmed/21167468")), ". The UKB dataset was projected onto the
+			first two principle components (PCs) from the 2,504 participants of the 1000 Genomes Project (", strong(a("ref",  href="https://www.ncbi.nlm.nih.gov/pubmed/26432245")), "), using
 			HM3 SNP with minor allele frequence (MAF) > 0.01 in both datasets."),
 			h5("Next, participants from UKB were
 			assigned to one of five super-populations from the 1000 Genomes project: European, African, East-
@@ -337,10 +339,10 @@ shinyUI(fluidPage(
 			hr()
 		)),
 		fluidRow(column(6, offset=3, align="justify",
-			h5("Great Britain territory is first divided by region (source). To avoid the biais done by this human territory division, we also proposed to split the territory in hexagones with identical area ", strong(a("(source)", style="color:lightblue", href="https://xinye1.github.io/projects/brexit-cartogram-leaflet/")), " . In both case, we computed the average value of each variable per region."),
-			h5("A cartogram representation is also proposed, where the area of each region is transformed proportionaly to the  number of individuals it contains. This has been done using the rubber sheet distortion algorithm ",strong(a("(Dougenik et al. 1985)", style="color:lightblue", href="https://xinye1.github.io/projects/brexit-cartogram-leaflet/")), " implemented in the ", strong(a("cartogram R library", style="color:lightblue", href="https://github.com/sjewo/cartogram"))),
-			h5("To evaluate the spatial autocorrelation of a variable, we computed it's ", strong(a("Moran's I value", style="color:lightblue", href="http://www.jstor.org/stable/2532039?seq=2#page_scan_tab_contents"))," using the ", strong(a("spdep", style="color:lightblue", href="https://cran.r-project.org/web/packages/spdep/spdep.pdf")), " library"),
-			h5("All the result of this study have been obtained using the", strong(a("R programming", style="color:lightblue", href="https://www.r-project.org/about.html")), "language. Maps are done using the ",strong(a("leaflet library", style="color:lightblue", href="https://rstudio.github.io/leaflet/")) ,"developped by", strong(a("Rstudio", style="color:lightblue", href="https://www.rstudio.com")),". All the code are available on ",  strong(a("Github", style="color:lightblue", href="https://github.com/holtzy/UKB_geo_application"))," and further explanation are available in our publication. Raw data are provided using the button below. Feel free to contact us for further information.")
+			h5("Great Britain territory is first divided by region (source). To avoid the biais done by this human territory division, we also proposed to split the territory in hexagones with identical area ", strong(a("(source)",  href="https://xinye1.github.io/projects/brexit-cartogram-leaflet/")), " . In both case, we computed the average value of each variable per region."),
+			h5("A cartogram representation is also proposed, where the area of each region is transformed proportionaly to the  number of individuals it contains. This has been done using the rubber sheet distortion algorithm ",strong(a("(Dougenik et al. 1985)",  href="https://xinye1.github.io/projects/brexit-cartogram-leaflet/")), " implemented in the ", strong(a("cartogram R library",  href="https://github.com/sjewo/cartogram"))),
+			h5("To evaluate the spatial autocorrelation of a variable, we computed it's ", strong(a("Moran's I value",  href="http://www.jstor.org/stable/2532039?seq=2#page_scan_tab_contents"))," using the ", strong(a("spdep",  href="https://cran.r-project.org/web/packages/spdep/spdep.pdf")), " library"),
+			h5("All the result of this study have been obtained using the", strong(a("R programming",  href="https://www.r-project.org/about.html")), "language. Maps are done using the ",strong(a("leaflet library",  href="https://rstudio.github.io/leaflet/")) ,"developped by", strong(a("Rstudio",  href="https://www.rstudio.com")),". All the code are available on ",  strong(a("Github",  href="https://github.com/holtzy/UKB_geo_application"))," and further explanation are available in our publication. Raw data are provided using the button below. Feel free to contact us for further information.")
 		)),
 		br(),br(),
 		fluidRow(align="center", 
@@ -371,7 +373,7 @@ shinyUI(fluidPage(
 			br(), 
 			h2("1 - Load your file"),
 			hr(),
-			h5("Your file must be composed by at least 3 columns. The two first columns must be longitude and latitude respectively (use OSGB 1936 projection, as provided in the UKBiobank dataset). All other columns are your variables that must be normalized and centered. Each line is an individual. File can be compressed (.gz). Respect header shown in the example. Column must be separated by spaces. Note that an example file is provided", a("here", style="color:lightblue", href="https://github.com/holtzy/UKB_geo_application/blob/master/DATA/toy_dataset.txt",".") ),
+			h5("Your file must be composed by at least 3 columns. The two first columns must be longitude and latitude respectively (use OSGB 1936 projection, as provided in the UKBiobank dataset). All other columns are your variables that must be normalized and centered. Each line is an individual. File can be compressed (.gz). Respect header shown in the example. Column must be separated by spaces. Note that an example file is provided", a("here",  href="https://github.com/holtzy/UKB_geo_application/blob/master/DATA/toy_dataset.txt",".") ),
 			br(), br()
 		)),
 		
@@ -431,9 +433,9 @@ shinyUI(fluidPage(
 		column(4, offset=4,
 			hr(),
 			br(), br(),
-			"A project by", strong(a("A. Abdellaoui", style="color:lightblue", href="https://www.researchgate.net/profile/Abdel_Abdellaoui")), " et al. Realisation by", strong(a("Y. Holtz", style="color:lightblue", href="https://holtzyan.wordpress.com")),".",
+			"A project by", strong(a("A. Abdellaoui",  href="https://www.researchgate.net/profile/Abdel_Abdellaoui")), " et al. Realisation by", strong(a("Y. Holtz",  href="https://holtzyan.wordpress.com")),".",
 			br(),
-			"Source code available on", strong(a("Github", style="color:lightblue", href="https://github.com/holtzy/UKB_geo_application")),".",
+			"Source code available on", strong(a("Github",  href="https://github.com/holtzy/UKB_geo_application")),".",
 			br(),
 			"Copyright © 2017 Genes, Geography in the UKB",
 			br(), br(),br()

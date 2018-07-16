@@ -19,8 +19,9 @@
 # 1 - I run this script on Abdel data using these command lines. 
 #load("~/Dropbox/QBI/15_ABDEL_UKB_MAP/UKB_geo_application/DATA/Abdel_data.Rdata")
 #input=GBR_region
+#remove the shiny part in the script below
 #run the script below
-#moran_data=moran_test
+#moran_data <- compute_autocor(input)
 #save(moran_data, file="~/Dropbox/QBI/15_ABDEL_UKB_MAP/UKB_geo_application/DATA/Spatial_Autocor.Rdata")
 
 # 2 - This function is then called in the shiny app in case a user loads his data
@@ -32,12 +33,12 @@
 library(sp)
 library(spdep)
 library(dplyr)
-
+library(shiny)
 
 # A function that return spatial autocorelation for all the variable of a spatial polygon data frame:
 compute_autocor = function(input){
   
-incProgress(0.1, detail = "Start Moran coeeficient computation")
+  incProgress(0.1, detail = "Start Moran coeeficient computation")
 
   # Keep only numerical data in input
   input@data = input@data[ , which(sapply(input@data, is.numeric)) ]
@@ -54,7 +55,7 @@ incProgress(0.1, detail = "Start Moran coeeficient computation")
 
 
   # moran test
-  tmp <- lapply(input@data, moran.mc, sp_weights, nsim=100, zero.policy = TRUE, na.action=na.omit)
+  tmp <- lapply(input@data, moran.mc, sp_weights, nsim=10000, zero.policy = TRUE, na.action=na.omit)
   tmp <- t(simplify2array(tmp))
   tmp <- as.data.frame(tmp[,1:3])
   incProgress(0.1, detail = "Neigbhour list object")

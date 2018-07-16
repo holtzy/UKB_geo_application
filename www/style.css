@@ -19,11 +19,16 @@
 /* ---- GLOBAL -------*/
 
 /* Google Fonts */
-@import url(https://fonts.googleapis.com/css?family=Open+Sans);
+@import url(https://fonts.googleapis.com/css?family=Source+Sans+Pro);
 
-/* set global font to Open Sans */
+/* set global font to Roboto */
 body {
-  font-family: 'Open Sans', 'sans-serif';
+  font-family: 'Source Sans Pro', sans-serif;
+}
+
+/*links*/
+a {
+  color: #2ecc71;
 }
 /* ------------------------------------------------------------*/ 
 
@@ -43,7 +48,6 @@ h2 {
 
 /* Level 5 = text of the story */
 h5 {
-    font-family: 'Open Sans', 'sans-serif';
     font-size: 14px;
     line-height: 1.55;
 }
@@ -51,7 +55,6 @@ h5 {
 
 /* Level 6 = Green text sankey */
 h6 {
-    font-family: 'Open Sans', 'sans-serif';
     font-size: 22px;
     line-height: 1.55;
     color: #2ecc71;
@@ -59,7 +62,6 @@ h6 {
 
 /* Level 3 = Plot legends */
 h3 {
-    font-family: 'Open Sans', 'sans-serif';
     font-size: 15px;
     line-height: 1.55;
     color: #707070;

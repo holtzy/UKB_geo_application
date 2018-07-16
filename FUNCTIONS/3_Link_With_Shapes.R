@@ -27,11 +27,13 @@
 # Load the individual matrix saved in part1
 # download data from Cluster (/gpfs/gpfs01/polaris/Q0286/UKBiobank/pheno/UKB_geography/for_Yan)
 #load("~/Dropbox/QBI/15_ABDEL_UKB_MAP/UKB_geo_application/DATA/Map_data.Rdata")
-#input <- read.table("~/Desktop/TEMP_UKB_ABDEL/UKB.geowebsite.individual_level.polygenic_scores.100PCs.csv.gz", header=T, sep=",")
+#input <- read.table("~/Desktop/TEMP_ABDEL/UKB.geowebsite.individual_level.polygenic_scores.100PCs.10kref.csv.gz", header=T, sep=",")
 #input=na.omit(input)
 #output="/Users/y.holtz/Dropbox/QBI/15_ABDEL_UKB_MAP/UKB_geo_application/DATA/Abdel_data.Rdata"
-
-
+#and run the command lines of the function below
+# Save objects when I do it on abdel data
+# save(GBR_region, GBR_region_cartogram, GBR_hexa, GBR_hexa_cartogram, file=output)
+  
 # 2 - The user of the app can load his data and it will run the script as well:
 #data=read.table("/Users/y.holtz/Desktop/example_file.csv.gz", header=T)
 #ls()
@@ -153,9 +155,7 @@ compute_shape_sumstat = function(input, output){
   ################################################################
   
   
-  # Save objects when I do it on abdel data
-  #save(GBR_region, GBR_region_cartogram, GBR_hexa, GBR_hexa_cartogram, file=output)
-  
+
   # Just return the objects if this is done on user data
   return( list(GBR_region, GBR_region_cartogram, GBR_hexa, GBR_hexa_cartogram) )
 
