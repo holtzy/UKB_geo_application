@@ -113,7 +113,7 @@ shinyUI(fluidPage(
 			br(), br(), br(), br(),br(), br(), br(), br(),
 			h2("Genetic Variables"),
 			hr(),
-			h5("Below you can choose to visualize the geographical distribution of 25 genetic variables and 100 principal components (PCs) that reflect ancestry differences within the UK. Polygenic scores have been corrected for the 100 PCs. See the method section for details on how these variables have been computed."),
+			h5("Below you can choose to visualize the geographical distribution of 30 genetic variables and 100 principal components (PCs) that reflect ancestry differences within the UK. Polygenic scores have been corrected for the 100 PCs. See the method section for details on how these variables have been computed."),
 			uiOutput("map_variable_button")
 		),
 		column(2, align="right",
@@ -294,7 +294,7 @@ shinyUI(fluidPage(
 			h5("Next, participants from UKB were
 			assigned to one of five super-populations from the 1000 Genomes project: European, African, East-
 			Asian, South-Asian, or Admixed. Assignments for European, African, East-Asian, and South-Asian
-			ancestries were based on &gt; 0.9 posterior-probability of belonging to the 1000 Genomes reference
+			ancestries were based on > 0.9 posterior-probability of belonging to the 1000 Genomes reference
 			cluster, with the remaining participants classified as Admixed. Posterior-probabilities were calculated
 			under a bivariate Gaussian distribution where this approach generalizes the k-means method to take
 			account of the shape of the reference cluster. We used a uniform prior and calculated the vectors of
@@ -303,7 +303,7 @@ shinyUI(fluidPage(
 			h5("A PCA was then conducted on individuals of European ancestry using flashPCA 10 in order to
 			capture ancestry differences within the British population. In order to capture ancestry differences in
 			homogenous populations, genotypes should be pruned for LD and long-range LD regions removed. 11 The
-			LD pruned (r 2 &lt; .1) UKB dataset without long-range LD regions consisted of 137,102 genotyped SNPs. The
+			LD pruned (r2 < .1) UKB dataset without long-range LD regions consisted of 137,102 genotyped SNPs. The
 			PCA to construct British ancestry-informative PCs was conducted on this SNP set with minimized LD on
 			unrelated individuals and was then projected onto the complete set of European individuals.")
 		)),
@@ -324,7 +324,7 @@ shinyUI(fluidPage(
 			disequilibrium (LD) between SNPs. The traits included psychiatric disorders, substance use,
 			anthropomorphic traits, personality dimensions, educational attainment, cardiovascular disease, and
 			type-2 diabetes. In order to examine the geographic clustering of polygenic scores beyond the clustering
-			of ancestry, we created an additional set of polygenic scores that had the first 25 British ancestry-
+			of ancestry, we created an additional set of polygenic scores that had the first 100 British ancestry-
 			informative PCs regressed out."),
 			br(),
 			img(src='Table_List_Traits.png', align = "center", width="100%", height="100%")
@@ -433,11 +433,11 @@ shinyUI(fluidPage(
 		column(4, offset=4,
 			hr(),
 			br(), br(),
-			"A project by", strong(a("A. Abdellaoui",  href="https://www.researchgate.net/profile/Abdel_Abdellaoui")), " et al. Realisation by", strong(a("Y. Holtz",  href="https://holtzyan.wordpress.com")),".",
+			"A project by", strong(a("A. Abdellaoui",  href="https://twitter.com/dr_appie")), " et al. Realisation by", strong(a("Y. Holtz",  href="https://twitter.com/r_graph_gallery?lang=en")),".",
 			br(),
 			"Source code available on", strong(a("Github",  href="https://github.com/holtzy/UKB_geo_application")),".",
 			br(),
-			"Copyright © 2017 Genes, Geography in the UKB",
+			"Copyright © 2018 Genes, Geography in the UKB",
 			br(), br(),br()
 			
 		),
