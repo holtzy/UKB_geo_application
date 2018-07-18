@@ -27,6 +27,9 @@ shinyUI(fluidPage(
 		br(),
 		helpText(
 			strong("Genes & Geography in Great Britain", style="color:black; font-size:30pt")
+		),
+		helpText(
+			"A project in beta version"
 		)
 	),
 	fluidRow( align="center",
@@ -302,7 +305,7 @@ shinyUI(fluidPage(
 			were identified to have a European ancestry."),
 			h5("A PCA was then conducted on individuals of European ancestry using flashPCA 10 in order to
 			capture ancestry differences within the British population. In order to capture ancestry differences in
-			homogenous populations, genotypes should be pruned for LD and long-range LD regions removed. 11 The
+			homogenous populations, genotypes should be pruned for LD and long-range LD regions removed. The
 			LD pruned (r2 < .1) UKB dataset without long-range LD regions consisted of 137,102 genotyped SNPs. The
 			PCA to construct British ancestry-informative PCs was conducted on this SNP set with minimized LD on
 			unrelated individuals and was then projected onto the complete set of European individuals.")
@@ -319,7 +322,7 @@ shinyUI(fluidPage(
 			h5("Polygenic scores, the genome-wide sum of alleles weighted by their estimated effect sizes, were
 			computed for ~30 traits. The effect size estimates came from genome-wide association studies (GWASs)
 			that were chosen to not have included the UKB dataset to avoid over-estimation of the genetic
-			predisposition of a trait. 12 The polygenic scores were computed using the SBLUP approach, 13 which
+			predisposition of a trait. The polygenic scores were computed using the SBLUP approach, which
 			maximizes the predictive power by creates scores with BLUP properties that account for linkage
 			disequilibrium (LD) between SNPs. The traits included psychiatric disorders, substance use,
 			anthropomorphic traits, personality dimensions, educational attainment, cardiovascular disease, and
