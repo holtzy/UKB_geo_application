@@ -29,7 +29,7 @@ shinyUI(fluidPage(
 			strong("Genes & Geography in Great Britain", style="color:black; font-size:30pt")
 		),
 		helpText(
-			"A project in beta version"
+			"Beta version"
 		)
 	),
 	fluidRow( align="center",
