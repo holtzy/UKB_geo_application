@@ -14,7 +14,7 @@ shinyUI(fluidPage(
     tags$head(
       tags$link(rel="stylesheet", type = "text/css", href = "https://fonts.googleapis.com/css?family=Source+Sans+Pro")
     ),
-	
+
 	# This is to explain you have a CSS file that custom the appearance of the app
 	includeCSS("www/style.css") ,
 
@@ -34,19 +34,19 @@ shinyUI(fluidPage(
 	),
 	fluidRow( align="center",
 		br(),
-		column(4, offset=4, align="center", radioGroupButtons( "section",label = NULL, choices=c("Methods"=2, "Explore"=1, "Compare"=3, "Load your data"=4), selected=1 )),
-	
+		column(5, offset=3, align="center", radioGroupButtons( "section",label = NULL, choices=c("Home"=0, "Methods"=2, "Explore"=1, "Compare"=3, "Load your data"=4), selected=1 )),
+
 		# Customization button
-		column(1, offset=0, align="right", 
+		column(1, offset=0, align="right",
 			dropdownButton(
 				circle = TRUE, icon = icon("wrench"), width = "600px", tooltip = tooltipOptions(title = "Custom your maps!"),
-			
+
 				h2("Geographical Unit"),
 				hr(),
 				h5("We offer to work at 3 different geographical scales. This will divide UK in 414, 1k and 10k units respectively. You can also choose your resolution. Better resolution allows to zoom on the map, but a waiting time will be necessary. Click the + button for this option."),
 				selectInput(inputId = "map_geo_unit", label = "", choices = c("Region"=1, "Hexagones"=3) ),
 				br(), br(),
-				
+
 				h2("Transformation"),
 				hr(),
 				h5("We propose to work at 3 different geographical scales. This will divide UK in 414, 1k and 10k units respectively. You can also choose your resolution. Better resolution allows to zoom on the map, but a waiting time will be necessary. Click the + button for this option."),
@@ -64,17 +64,54 @@ shinyUI(fluidPage(
 
 				strong("Number of bins (Quantile only):"),
 				sliderInput("slider_quantile", "", min=3, max=20, value=6, ticks=F)
-		
+
 		 	)
 		),
 		column(1, align="left", bookmarkButton("Share what you see"))
 	),
 
-	column(8, offset=2, hr()),	
+	column(8, offset=2, hr()),
 
 
  	# -------------------------------------------------------------------------------------
 
+
+
+	# #########
+	#	TAB 0
+	# #########
+	conditionalPanel("input.section == 0",
+		fluidRow(column(6, offset=3, align="left",
+			br(), br(),
+			h2("Summary"),
+			hr(),
+			h5("We conducted a study on the geographic distributions of human DNA differences
+			in Great Britain. Human DNA variation is not randomly distributed across
+			geographic regions. Regional differences in human DNA have been long known
+			to reflect ancestry differences from the distant past (Figure). We
+			investigated the extent to which DNA variants that influence heritable
+			human characteristics also show regional differences. We looked at genetic
+			variation associated with physical health, mental health, substance use, personality,
+			BMI, reproduction, height, and educational attainment. "),
+			br(),
+			h2("Links"),
+			hr(),
+			h5("The article can be found", a("here", href="https://www.biorxiv.org/"),"."),
+			h5("A document with our results explained in layman’s terms can be found", a("here", href="https://www.biorxiv.org/"),"."),
+			br(),
+			h2("Fundings"),
+			hr(),
+			h5("This research was supported by the Australian National Health and Medical
+			Research Council (1107258, 1078901, 1078037, 1056929, 1048853, and 1113400),
+			and the Sylvia & Charles Viertel Charitable Foundation (Senior Medical Research Fellowship).
+			A.A. & K.J.H.V are supported by the Foundation Volksbond Rotterdam. A.A. & M.G.N.
+			are supported by ZonMw grant 849200011 and 531003014 from The Netherlands Organisation
+			for Health Research and Development. B.P.Z. received funding from The Australian
+			Research Council (FT160100298). The research was conducted using data from
+			the UK Biobank Resource (Application Number: 12514) and dbGaP (Accession Number: phs000674)."),
+			br(), br(), br(),br(), br(), br(), br()
+			)
+		)),
 
 
 
@@ -85,7 +122,7 @@ shinyUI(fluidPage(
 	#	TAB 1
 	# #########
 	conditionalPanel("input.section == 1",
-		column(2, offset=1, 
+		column(2, offset=1,
 			br(), br(), br(), br(),br(), br(), br(), br(),br(), br(), br(), br(),
 			h2("Welcome"),
 			hr(),
@@ -97,7 +134,7 @@ shinyUI(fluidPage(
 
 
 
-		
+
 
 
 		# MAP
@@ -124,12 +161,12 @@ shinyUI(fluidPage(
 			h2("Moran's I"),
 			hr(),
 			h5( strong(a("Moran's I",  href="http://onlinelibrary.wiley.com/doi/10.1111/j.1538-4632.2007.00708.x/abstract;jsessionid=154996FCB55E5EE7CBD2B3B65BC1DB5C.f02t03")), " Moran's I is a measure of spatial autocorrelation, i.e., the degree to which values are clustered together in geographic space. Like regular correlations, the values of Moran’s I range from -1 (dispersed) to 0 (randomly distributed) to 1 (clustered together). Click on the plus button below to see a ranking of the genetic variables based on their Moran’s I."),
-			dropdownButton( circle = TRUE, icon = icon("plus"), size= "s", width="600px", right=TRUE, up=TRUE, 
+			dropdownButton( circle = TRUE, icon = icon("plus"), size= "s", width="600px", right=TRUE, up=TRUE,
 				conditionalPanel("input.moranbar == 1", plotOutput("barplotPRS", height="780px")),
 				conditionalPanel("input.moranbar == 2", plotOutput("barplotPC", height="780px")),
 				fluidRow(align="center", radioGroupButtons( "moranbar",label = NULL, choices=c("Traits"=1, "PCs"=2), selected=1 ))
 			)
-		)		
+		)
 	),
 	br(), br(),
 
@@ -155,30 +192,30 @@ shinyUI(fluidPage(
 			column(3, offset=0, align="center",
 				br(),br(),
 				uiOutput("multimap_variable_button1"),
-				leafletOutput("compar_map1", height=multimap_height) %>% withSpinner( color= "#2ecc71"), 
+				leafletOutput("compar_map1", height=multimap_height) %>% withSpinner( color= "#2ecc71"),
 				br(),
-				uiOutput("title_multimap1") 
+				uiOutput("title_multimap1")
 			),
 			column(3, offset=0, align="center",
 				br(),br(),
 				uiOutput("multimap_variable_button2"),
-				leafletOutput("compar_map2", height=multimap_height) %>% withSpinner( color= "#2ecc71"), 
+				leafletOutput("compar_map2", height=multimap_height) %>% withSpinner( color= "#2ecc71"),
 				br(),
-				uiOutput("title_multimap2") 
+				uiOutput("title_multimap2")
 			),
 			column(3, offset=0, align="center",
 				br(),br(),
 				uiOutput("multimap_variable_button3"),
-				leafletOutput("compar_map3", height=multimap_height) %>% withSpinner( color= "#2ecc71"), 
+				leafletOutput("compar_map3", height=multimap_height) %>% withSpinner( color= "#2ecc71"),
 				br(),
-				uiOutput("title_multimap3") 
+				uiOutput("title_multimap3")
 			),
 			column(3, offset=0, align="center",
 				br(),br(),
 				uiOutput("multimap_variable_button4"),
-				leafletOutput("compar_map4", height=multimap_height) %>% withSpinner( color= "#2ecc71"), 
+				leafletOutput("compar_map4", height=multimap_height) %>% withSpinner( color= "#2ecc71"),
 				br(),
-				uiOutput("title_multimap4") 
+				uiOutput("title_multimap4")
 			)
 		),
 
@@ -192,9 +229,9 @@ shinyUI(fluidPage(
 
 		# Scatterplot of pairwise comparison
 		br(),
-		fluidRow( align="center", 
-			column(4, offset=4, 
-				hr(), 
+		fluidRow( align="center",
+			column(4, offset=4,
+				hr(),
 				h5("To complete this geographical comparison, here are a couple of scatterplots showing the relationship between each pair of variables you have selected:")
 			)
 		),
@@ -203,7 +240,7 @@ shinyUI(fluidPage(
 			column(6, align="left", uiOutput("choice_Y_scatter"))
 		),
 		br(),
-		fluidRow(align="center", column(6, offset=3, plotlyOutput("scatter", height="700px", width="700px") %>% withSpinner( color= "#2ecc71"))), 
+		fluidRow(align="center", column(6, offset=3, plotlyOutput("scatter", height="700px", width="700px") %>% withSpinner( color= "#2ecc71"))),
 		fluidRow(align="center", column(4, offset=4, h3(tags$u(tags$b("Figure 3")),": Scatterplot showing the relationship between 2 variables. Each point represent a region of the map. Size and color are proportional to the number of people per region."))),
 
 
@@ -215,17 +252,17 @@ shinyUI(fluidPage(
 
 		# Heatmap
 		br(),
-		fluidRow( align="center", 
-			column(4, offset=4, 
+		fluidRow( align="center",
+			column(4, offset=4,
 				br(),
-				hr(), 
+				hr(),
 				h5("Correlation between genetic traits")
 			)
 		),
-		fluidRow(align="center", 
+		fluidRow(align="center",
 			column(6, offset=3, plotlyOutput("heatmap", width="850px", height="850px") %>% withSpinner( color= "#2ecc71")),
 			column(1, br(),br(),br(),br(),br(),br(),br(), radioGroupButtons(inputId = "varY_heatmap", label = "", choices = c("PRS (no correction)" = 1, "PRS corrected by PCs"=2, "PCs" = 3), selected=2, direction = "vertical") )
-		), 
+		),
 		fluidRow(align="center", column(4, offset=4, h3(tags$u(tags$b("Figure 4")),": Heatmap displaying the Pearson correlation coefficient between variable. Pick up the group of traits of the Y axis using the right buttons (and use bottom buttons for the X axis)."))),
 		fluidRow(align="center", radioGroupButtons(inputId = "varX_heatmap", label = "", choices = c("PRS (no correction)" = 1, "PRS corrected by PCs"=2, "PCs" = 3), selected=2))
 
@@ -348,12 +385,12 @@ shinyUI(fluidPage(
 			h5("All the result of this study have been obtained using the", strong(a("R programming",  href="https://www.r-project.org/about.html")), "language. Maps are done using the ",strong(a("leaflet library",  href="https://rstudio.github.io/leaflet/")) ,"developped by", strong(a("Rstudio",  href="https://www.rstudio.com")),". All the code are available on ",  strong(a("Github",  href="https://github.com/holtzy/UKB_geo_application"))," and further explanation are available in our publication. Raw data are provided using the button below. Feel free to contact us for further information.")
 		)),
 		br(),br(),
-		fluidRow(align="center", 
+		fluidRow(align="center",
 			downloadButton("load_ex_format1", label = "Download"),
-			actionButton(inputId='ab1', label="Github", icon = icon("github"), onclick ="location.href='https://github.com/holtzy/UKB_geo_application';"), 
+			actionButton(inputId='ab1', label="Github", icon = icon("github"), onclick ="location.href='https://github.com/holtzy/UKB_geo_application';"),
 			actionButton(inputId='ab1', label="Paper", icon = icon("file-o"), onclick ="location.href='https://www.ncbi.nlm.nih.gov/pubmed/';")
 		)
-			
+
 	),
 
 
@@ -373,18 +410,18 @@ shinyUI(fluidPage(
 		)),
 
 		fluidRow(column(7, offset=2, align="left",
-			br(), 
+			br(),
 			h2("1 - Load your file"),
 			hr(),
 			h5("Your file must be composed by at least 3 columns. The two first columns must be longitude and latitude respectively (use OSGB 1936 projection, as provided in the UKBiobank dataset). All other columns are your variables that must be normalized and centered. Each line is an individual. File can be compressed (.gz). Respect header shown in the example. Column must be separated by spaces. Note that an example file is provided", a("here",  href="https://github.com/holtzy/UKB_geo_application/blob/master/DATA/toy_dataset.txt",".") ),
 			br(), br()
 		)),
-		
+
 		fluidRow( align="center",
 			column(4,
 				h6("Select your file"),
 				br(), br(), br(),
-				fileInput("file1", "" , multiple = FALSE)				
+				fileInput("file1", "" , multiple = FALSE)
 			),
 			column(4,
 				h6("How it should look like:"),
@@ -398,18 +435,18 @@ shinyUI(fluidPage(
 		),
 
 		fluidRow(column(7, offset=2, align="left",
-			br(), br(), br(), br(),br(), 
+			br(), br(), br(), br(),br(),
 			h2("2 - Calculate summary statistics"),
 			hr(),
 			h5("Once your file as been read correctly, you can run the spatial analysis. This will calculate summary statics for every region of the maps and build the cartograms. A pop-up window will inform you once the computation will be over. It will thus be possible to go back on the exploration and compare tabs; your variable(s) will be available in the 'variable' button"),
-			br(), 
+			br(),
 			actionButton("button_computation", "Run analysis"),
 			conditionalPanel("output.flagOK",
 				downloadButton("downloadData", "Download your aggregated data")
 			),
 			uiOutput("info_message") %>% withSpinner( color= "#2ecc71"),
 			useSweetAlert(),
-			br()			
+			br()
 		))
 
 
@@ -442,12 +479,12 @@ shinyUI(fluidPage(
 			br(),
 			"Copyright © 2018 Genes, Geography in the UKB",
 			br(), br(),br()
-			
+
 		),
 		br(),br()
 	)
 
-	
+
 	# -------------------------------------------------------------------------------------
 
 
