@@ -30,7 +30,7 @@
 #input <- read.table("~/Desktop/TEMP_ABDEL/UKB.geowebsite.individual_level.polygenic_scores.100PCs.10kref.csv.gz", header=T, sep=",")
 #input=na.omit(input)
 #output="/Users/y.holtz/Dropbox/QBI/15_ABDEL_UKB_MAP/UKB_geo_application/DATA/Abdel_data.Rdata"
-#and run the command lines of the function below
+#and run the command lines of the function below one by one
 # Save objects when I do it on abdel data
 # save(GBR_region, GBR_region_cartogram, GBR_hexa, GBR_hexa_cartogram, file=output)
   
