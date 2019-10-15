@@ -23,14 +23,14 @@
 # TO USE THIS FUNCTION
 ##############################
 
-# 1 - I run this script on Abdel data using these command lines. The result is several spatial polygon data frames I use as input for the application.
-# Load the individual matrix saved in part1
-# download data from Cluster (/gpfs/gpfs01/polaris/Q0286/UKBiobank/pheno/UKB_geography/for_Yan)
-#load("~/Dropbox/QBI/15_ABDEL_UKB_MAP/UKB_geo_application/DATA/Map_data.Rdata")
-#input <- read.table("~/Desktop/TEMP_ABDEL/UKB.geowebsite.individual_level.polygenic_scores.100PCs.10kref.csv.gz", header=T, sep=",")
-#input=na.omit(input)
-#output="/Users/y.holtz/Dropbox/QBI/15_ABDEL_UKB_MAP/UKB_geo_application/DATA/Abdel_data.Rdata"
-#and run the command lines of the function below one by one
+# 1 - I run this script each time Abdel provides data using these command lines. 
+# The result is several spatial polygon data frames I use as input for the application.
+# Load the individual data + geographic objects
+# load("~/Desktop/UKB_geo_application/DATA/Map_data.Rdata")
+# input <- read.table("~/Desktop/ABDEL_DATA/UKB.geowebsite.individual_level.polygenic_scores.100PCs.10kref.csv.gz", header=T, sep=",")
+# input=na.omit(input)
+# output="/Users/y.holtz/Dropbox/QBI/15_ABDEL_UKB_MAP/UKB_geo_application/DATA/Abdel_data.Rdata"
+# and run the command lines of the function below one by one
 # Save objects when I do it on abdel data
 # save(GBR_region, GBR_region_cartogram, GBR_hexa, GBR_hexa_cartogram, file=output)
   
