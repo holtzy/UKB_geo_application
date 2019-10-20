@@ -27,9 +27,9 @@
 # The result is several spatial polygon data frames I use as input for the application.
 # Load the individual data + geographic objects
 # load("~/Desktop/UKB_geo_application/DATA/Map_data.Rdata")
-# input <- read.table("~/Desktop/ABDEL_DATA/UKB.geowebsite.individual_level.polygenic_scores.100PCs.10kref.csv.gz", header=T, sep=",")
+# input <- read.table("~/Desktop/ABDEL_DATA/UKB.geowebsite.individual_level.polygenic_scores.100PCs.10kref.REVISION.csv", header=T, sep=",")
 # input=na.omit(input)
-# output="/Users/y.holtz/Dropbox/QBI/15_ABDEL_UKB_MAP/UKB_geo_application/DATA/Abdel_data.Rdata"
+# output="~/Desktop/UKB_geo_application/DATA/Abdel_data.Rdata"
 # and run the command lines of the function below one by one
 # Save objects when I do it on abdel data
 # save(GBR_region, GBR_region_cartogram, GBR_hexa, GBR_hexa_cartogram, file=output)
@@ -138,11 +138,11 @@ compute_shape_sumstat = function(input, output){
   
   
   # ----------- REGION LARGE ---------------------------
-  GBR_region_cartogram = cartogram(GBR_region, "nb_people", itermax=1)
+  GBR_region_cartogram = cartogram(GBR_region, "nb_people", itermax=5)
   incProgress(0.1, detail = "Cartogram region OK")
  
   # ----------- HEXAGONE ---------------------------
-  GBR_hexa_cartogram = cartogram(GBR_hexa, "nb_people", itermax=1)
+  GBR_hexa_cartogram = cartogram(GBR_hexa, "nb_people", itermax=5)
   
    incProgress(0.1, detail = "Cartogram hexagone OK")
 

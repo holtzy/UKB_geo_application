@@ -34,7 +34,7 @@ fluidRow( align="center",
 ),
 fluidRow( align="center",
 	br(),
-	column(4, offset=4, align="center", radioGroupButtons( "section",label = NULL, choices=c("Methods"=2, "Explore"=1, "Compare"=3, "Load your data"=4), selected=1 )),
+	column(5, offset=3, align="center", radioGroupButtons( "section",label = NULL, choices=c("Home"=0, "Methods"=2, "Explore"=1, "Compare"=3, "Load your data"=4), selected=1 )),
 
 	# Customization button
 	column(1, offset=0, align="right",
@@ -77,6 +77,48 @@ column(8, offset=2, hr()),
 
 
 
+	# #########
+	#	TAB 0
+	# #########
+	conditionalPanel("input.section == 0",
+		fluidRow(column(6, offset=3, align="left",
+			br(), br(),
+			h2("Summary"),
+			hr(),
+			h5("We conducted a study on the geographic distributions of human DNA differences
+			in Great Britain. Human DNA variation is not randomly distributed across
+			geographic regions. Regional differences in human DNA have been long known
+			to reflect ancestry differences from the distant past (Figure). We
+			investigated the extent to which DNA variants that influence heritable
+			human characteristics also show regional differences. We looked at genetic
+			variation associated with physical health, mental health, substance use, personality,
+			BMI, reproduction, height, and educational attainment. "),
+			br(),
+			h2("Links"),
+			hr(),
+			h5("The article can be found", a("here", href="https://www.nature.com/articles/s41562-019-0757-5"),"."),
+			h5("A document with our results explained in layman’s terms can be found", a("here", href="https://www.scribd.com/document/430555452/Abdellaoui-2019-NHB-faq"),"."),
+			br(),
+			h2("Fundings"),
+			hr(),
+			h5("This research was supported by the Australian National Health and Medical
+			Research Council (1107258, 1078901, 1078037, 1056929, 1048853, and 1113400),
+			and the Sylvia & Charles Viertel Charitable Foundation (Senior Medical Research Fellowship).
+			A.A. & K.J.H.V are supported by the Foundation Volksbond Rotterdam. A.A. & M.G.N.
+			are supported by ZonMw grant 849200011 and 531003014 from The Netherlands Organisation
+			for Health Research and Development. B.P.Z. received funding from The Australian
+			Research Council (FT160100298). The research was conducted using data from
+			the UK Biobank Resource (Application Number: 12514) and dbGaP (Accession Number: phs000674)."),
+			br(), br(), br(),br(),
+			fluidRow(align="center",
+				actionButton(inputId='ab1', label="Github", icon = icon("github"), onclick ="location.href='https://github.com/holtzy/UKB_geo_application';"),
+				actionButton(inputId='ab1', label="Paper", icon = icon("file-o"), onclick ="location.href='https://www.nature.com/articles/s41562-019-0757-5';"),
+				actionButton(inputId='ab1', label="FAQ", icon = icon("file-o"), onclick ="location.href='https://www.scribd.com/document/430555452/Abdellaoui-2019-NHB-faq';")
+			),
+			br(), br()
+			)
+
+		)),
 
 
 
@@ -350,7 +392,8 @@ conditionalPanel("input.section == 2",
 	br(),br(),
 	fluidRow(align="center",
 		actionButton(inputId='ab1', label="Github", icon = icon("github"), onclick ="location.href='https://github.com/holtzy/UKB_geo_application';"),
-		actionButton(inputId='ab1', label="Paper", icon = icon("file-o"), onclick ="location.href='https://www.nature.com/articles/s41562-019-0757-5';")
+		actionButton(inputId='ab1', label="Paper", icon = icon("file-o"), onclick ="location.href='https://www.nature.com/articles/s41562-019-0757-5';"),
+		actionButton(inputId='ab1', label="FAQ", icon = icon("file-o"), onclick ="location.href='https://www.scribd.com/document/430555452/Abdellaoui-2019-NHB-faq';")
 	)
 
 ),
