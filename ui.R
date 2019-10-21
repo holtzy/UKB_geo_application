@@ -88,7 +88,7 @@ column(8, offset=2, hr()),
 			h5("We conducted a study on the geographic distributions of human DNA differences
 			in Great Britain. Human DNA variation is not randomly distributed across
 			geographic regions. Regional differences in human DNA have been long known
-			to reflect ancestry differences from the distant past (Figure). We
+			to reflect ancestry differences from the distant past. We
 			investigated the extent to which DNA variants that influence heritable
 			human characteristics also show regional differences. We looked at genetic
 			variation associated with physical health, mental health, substance use, personality,
@@ -99,7 +99,7 @@ column(8, offset=2, hr()),
 			h5("The article can be found", a("here", href="https://www.nature.com/articles/s41562-019-0757-5"),"."),
 			h5("A document with our results explained in layman’s terms can be found", a("here", href="https://www.scribd.com/document/430555452/Abdellaoui-2019-NHB-faq"),"."),
 			br(),
-			h2("Fundings"),
+			h2("Funding"),
 			hr(),
 			h5("This research was supported by the Australian National Health and Medical
 			Research Council (1107258, 1078901, 1078037, 1056929, 1048853, and 1113400),
